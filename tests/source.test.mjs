@@ -30,6 +30,8 @@ test("public landing page explains the product and its model boundary", async ()
 test("MCP remains draft-only and uses optimistic chapter revisions", async () => {
   const mcp = await read("app/api/mcp/route.ts");
   assert.match(mcp, /story_get_context/);
+  assert.match(mcp, /story_build_chapter_prompt/);
+  assert.match(mcp, /includesCurrentDraft/);
   assert.match(mcp, /story_create_work/);
   assert.match(mcp, /story_update_work/);
   assert.match(mcp, /story_manage_outline/);
@@ -42,6 +44,21 @@ test("MCP remains draft-only and uses optimistic chapter revisions", async () =>
   assert.doesNotMatch(mcp, /isPublished:\s*true/);
   assert.match(mcp, /isPublished:\s*false/);
   assert.doesNotMatch(mcp, /delete\(works\)/);
+});
+
+test("chapter editor offers separate create and suggestion-based revision prompts", async () => {
+  const [workbench, i18n, promptBuilder] = await Promise.all([
+    read("app/studio/works/[id]/workbench.tsx"),
+    read("lib/i18n.ts"),
+    read("lib/chapter-prompt.ts"),
+  ]);
+  assert.match(workbench, /work\.createFromOutline/);
+  assert.match(workbench, /work\.modifyWithSuggestion/);
+  assert.match(workbench, /revisionSuggestion/);
+  assert.match(i18n, /Create new from outline/);
+  assert.match(i18n, /Modify with suggestion/);
+  assert.match(promptBuilder, /CURRENT CHAPTER MANUSCRIPT/);
+  assert.match(promptBuilder, /never a patch, summary, or explanation/);
 });
 
 test("structured data has ownership and private-by-default fields", async () => {

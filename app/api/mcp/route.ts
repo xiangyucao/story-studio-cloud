@@ -13,6 +13,7 @@ import {
 import { ownerFromBearer, ownedWork } from "@/lib/authz";
 import { getWorkBundle } from "@/lib/queries";
 import { createId, createSlug } from "@/lib/ids";
+import { buildChapterPrompt, type ChapterPromptMode } from "@/lib/chapter-prompt";
 
 type Rpc = { jsonrpc?: string; id?: string | number | null; method?: string; params?: { name?: string; arguments?: Record<string, unknown> } };
 type Db = ReturnType<typeof getDb>;
@@ -81,6 +82,7 @@ const tools = [
     },
   },
   { name: "story_get_chapter", description: "读取单章标题、大纲、正文和版本号。", inputSchema: { type: "object", properties: { workId: workFields.workId, chapterId: { type: "string" } }, required: ["workId", "chapterId"], additionalProperties: false } },
+  { name: "story_build_chapter_prompt", description: "为单章生成提示词。mode=create 时根据大纲创作全新章节；mode=modify 时必须提供 suggestion，并把当前正文和完整故事上下文放入改写提示词。只返回提示词，不调用模型、不修改正文。", inputSchema: { type: "object", properties: { workId: workFields.workId, chapterId: { type: "string" }, mode: { type: "string", enum: ["create", "modify"] }, suggestion: { type: "string", description: "mode=modify 时必填，说明需要如何修改当前章节。" } }, required: ["workId", "chapterId", "mode"], additionalProperties: false } },
   { name: "story_save_chapter", description: "保存章节草稿。必须提供刚读取的 expectedRevision；若网页端已更新，工具会拒绝覆盖。不能发布章节。", inputSchema: { type: "object", properties: { workId: workFields.workId, chapterId: { type: "string" }, content: { type: "string" }, title: { type: "string" }, outline: { type: "string" }, expectedRevision: { type: "integer" } }, required: ["workId", "chapterId", "content", "expectedRevision"], additionalProperties: false } },
 ];
 
@@ -94,7 +96,7 @@ export async function POST(request: Request) {
   try { rpc = await request.json() as Rpc; } catch { return rpcError(null, -32700, "Parse error"); }
   if (rpc.jsonrpc !== "2.0" || !rpc.method) return rpcError(rpc.id ?? null, -32600, "Invalid Request");
   if (rpc.method === "notifications/initialized") return new Response(null, { status: 202, headers });
-  if (rpc.method === "initialize") return rpcResult(rpc.id, { protocolVersion: request.headers.get("mcp-protocol-version") || "2025-06-18", capabilities: { tools: { listChanged: false } }, serverInfo: { name: "story-studio-cloud", version: "0.2.0" }, instructions: "读取和管理作者自己的故事结构与私人章节草稿。不得声称已发布内容，也不能通过 MCP 发布或删除整部作品。" });
+  if (rpc.method === "initialize") return rpcResult(rpc.id, { protocolVersion: request.headers.get("mcp-protocol-version") || "2025-06-18", capabilities: { tools: { listChanged: false } }, serverInfo: { name: "story-studio-cloud", version: "0.3.0" }, instructions: "读取和管理作者自己的故事结构与私人章节草稿。可以生成新写或按建议修改的章节提示词。不得声称已发布内容，也不能通过 MCP 发布或删除整部作品。" });
   if (rpc.method === "ping") return rpcResult(rpc.id, {});
   if (rpc.method === "tools/list") return rpcResult(rpc.id, { tools });
   if (rpc.method !== "tools/call" || !rpc.params?.name) return rpcError(rpc.id ?? null, -32601, "Method not found");
@@ -143,6 +145,14 @@ async function callTool(owner: string, name: string, args: Record<string, unknow
   const [chapter] = await db.select().from(chapters).where(and(eq(chapters.id, chapterId), eq(chapters.workId, workId))).limit(1);
   if (!chapter) throw new Error("章节不存在");
   if (name === "story_get_chapter") return { chapter };
+  if (name === "story_build_chapter_prompt") {
+    const mode = enumString(args.mode, "mode", ["create", "modify"]) as ChapterPromptMode;
+    const suggestion = mode === "modify" ? requiredString(args.suggestion, "suggestion").trim() : "";
+    const bundle = await getWorkBundle(workId);
+    const volume = bundle.volumes.find((item) => item.id === chapter.volumeId);
+    const prompt = buildChapterPrompt({ work, volume, chapter, bundle, mode, suggestion });
+    return { mode, workId, chapterId, chapterRevision: chapter.revision, includesCurrentDraft: mode === "modify", prompt, nextStep: "把模型返回的完整章节正文通过 story_save_chapter 保存，并使用这里的 chapterRevision 作为 expectedRevision。" };
+  }
   if (name === "story_save_chapter") {
     const expectedRevision = integer(args.expectedRevision, "expectedRevision");
     if (chapter.revision !== expectedRevision) throw new Error(`版本冲突：当前版本是 ${chapter.revision}，请重新读取后再保存。`);
