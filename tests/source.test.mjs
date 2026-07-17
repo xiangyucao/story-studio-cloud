@@ -21,6 +21,8 @@ test("public landing page explains the product and its model boundary", async ()
   assert.match(provider, /localStorage\.setItem\("story-studio-ui-locale"/);
   assert.match(footer, /github\.com\/xiangyucao\/story-studio/);
   assert.match(about, /story-studio-cloud\/issues/);
+  assert.match(about, /story-studio-cloud\/discussions/);
+  assert.match(about, /security\/advisories\/new/);
   assert.match(readme, /^# Story Studio Cloud/m);
   assert.match(readme, /original \[Story Studio desktop edition\]/);
 });

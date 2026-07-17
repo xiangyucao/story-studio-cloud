@@ -16,6 +16,10 @@ export default async function AboutPage() {
     <section id="privacy"><h2>{t("about.privacyTitle")}</h2><ul><li>{t("about.private1")}</li><li>{t("about.private2")}</li><li>{t("about.private3")}</li><li>{t("about.private4")}</li></ul></section>
     <section><h2>{t("about.localTitle")}</h2><p>{t("about.localBody")}</p><p><a className="text-link" href="https://github.com/xiangyucao/story-studio" target="_blank" rel="noreferrer">{t("about.localLink")}</a></p></section>
     <section><h2>{t("about.reportTitle")}</h2><p>{t("about.reportBody")}</p></section>
-    <section><h2>{t("about.contactTitle")}</h2><p>{t("about.contactBody")}</p><p><a className="text-link" href="https://github.com/xiangyucao/story-studio-cloud/issues" target="_blank" rel="noreferrer">{t("about.contactLink")}</a></p></section>
+    <section className="community-section"><h2>{t("about.contactTitle")}</h2><p>{t("about.contactBody")}</p><div className="community-links">
+      <a href="https://github.com/xiangyucao/story-studio-cloud/discussions" target="_blank" rel="noreferrer"><span>01</span><b>{t("about.discussionTitle")}</b><p>{t("about.discussionBody")}</p><em>{t("about.discussionLink")}</em></a>
+      <a href="https://github.com/xiangyucao/story-studio-cloud/issues/new/choose" target="_blank" rel="noreferrer"><span>02</span><b>{t("about.issueTitle")}</b><p>{t("about.issueBody")}</p><em>{t("about.issueLink")}</em></a>
+      <a href="https://github.com/xiangyucao/story-studio-cloud/security/advisories/new" target="_blank" rel="noreferrer"><span>03</span><b>{t("about.securityTitle")}</b><p>{t("about.securityBody")}</p><em>{t("about.securityLink")}</em></a>
+    </div></section>
   </div></main><SiteFooter /></div>;
 }
