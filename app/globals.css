@@ -35,6 +35,11 @@ button { cursor: pointer; }
 .site-header nav { display: flex; align-items: center; gap: 30px; font-size: 14px; color: #514b46; }
 .site-header nav a:hover, .login-link:hover, .text-link:hover { color: var(--terracotta); }
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 14px; }
+.language-switcher { display: inline-flex; align-items: center; gap: 7px; color: #5f5750; }
+.language-switcher > span[aria-hidden] { width: 25px; height: 25px; border: 1px solid #d8d0c6; border-radius: 50%; display: grid; place-items: center; font: 600 11px Georgia,serif; background: #fffdf9; }
+.language-switcher select { max-width: 135px; padding: 7px 24px 7px 8px; border: 1px solid #d8d0c6; border-radius: 9px; background: #fffdf9; color: #3b3632; font: inherit; cursor: pointer; }
+.language-switcher.compact select { max-width: 112px; font-size: 12px; }
+.sr-only { position: absolute!important; width: 1px!important; height: 1px!important; padding: 0!important; margin: -1px!important; overflow: hidden!important; clip: rect(0,0,0,0)!important; white-space: nowrap!important; border: 0!important; }
 .text-user { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .button { border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 12px; border-radius: 9px; padding: 13px 20px; font-weight: 700; font-size: 14px; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
 .button:hover { transform: translateY(-1px); }
@@ -186,6 +191,10 @@ button { cursor: pointer; }
 @media (max-width: 620px) {
   .wrap { width: min(100% - 28px, 1180px); }
   .site-header { height: 66px; }
+  .header-actions { gap: 8px; }
+  .language-switcher > span[aria-hidden] { display: none; }
+  .language-switcher.compact select { max-width: 92px; padding-left: 6px; }
+  .header-actions .login-link, .header-actions .text-user { display: none; }
   .login-link, .text-user { display: none; }
   .hero h1 { letter-spacing: -2.3px; }
   .hero-actions { align-items: stretch; flex-direction: column; }

@@ -1,15 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import type { ChatGPTUser } from "./chatgpt-auth";
 import { chatGPTSignInPath, chatGPTSignOutPath } from "./chatgpt-auth";
+import { LanguageSwitcher, useI18n } from "./language-provider";
 
 export function Brand({ compact = false }: { compact?: boolean }) {
   return <Link className={`brand ${compact ? "compact" : ""}`} href="/"><span className="brand-mark">S</span><span><b>Story Studio</b>{!compact && <small>Cloud</small>}</span></Link>;
 }
 
 export function SiteHeader({ user }: { user: ChatGPTUser | null }) {
-  return <header className="site-header"><div className="wrap header-inner"><Brand /><nav aria-label="主导航"><Link href="/#workflow">功能</Link><Link href="/library">小说广场</Link><Link href="/about">关于与免责</Link></nav><div className="header-actions">{user ? <><Link className="text-user" href="/studio">{user.displayName}</Link><Link className="button small quiet" href={chatGPTSignOutPath("/")}>退出</Link></> : <><Link className="login-link" href={chatGPTSignInPath("/studio")}>登录</Link><Link className="button small primary" href={chatGPTSignInPath("/studio")}>开始写作</Link></>}</div></div></header>;
+  const { t } = useI18n();
+  return <header className="site-header"><div className="wrap header-inner"><Brand /><nav aria-label="Primary navigation"><Link href="/#workflow">{t("nav.features")}</Link><Link href="/library">{t("nav.library")}</Link><Link href="/about">{t("nav.about")}</Link></nav><div className="header-actions"><LanguageSwitcher compact />{user ? <><Link className="text-user" href="/studio">{user.displayName}</Link><Link className="button small quiet" href={chatGPTSignOutPath("/")}>{t("auth.logout")}</Link></> : <><Link className="login-link" href={chatGPTSignInPath("/studio")}>{t("auth.login")}</Link><Link className="button small primary" href={chatGPTSignInPath("/studio")}>{t("auth.start")}</Link></>}</div></div></header>;
 }
 
 export function SiteFooter() {
-  return <footer className="site-footer"><div className="wrap footer-grid"><div><Brand /><p>把结构留给工具，把选择留给作者。</p></div><div><b>产品</b><Link href="/studio">写作工作台</Link><Link href="/library">小说广场</Link></div><div><b>说明</b><Link href="/about">免责声明</Link><Link href="/about#privacy">隐私与内容责任</Link></div><div className="footer-note"><b>重要说明</b><p>本站只提供作品管理、提示词整理和 MCP 读写能力，不提供或转售任何 AI 模型服务。</p></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} Story Studio Cloud</span><span>Made for stories, not for lock-in.</span></div></footer>;
+  const { t } = useI18n();
+  return <footer className="site-footer"><div className="wrap footer-grid"><div><Brand /><p>{t("footer.tagline")}</p></div><div><b>{t("footer.product")}</b><Link href="/studio">{t("footer.studio")}</Link><Link href="/library">{t("footer.library")}</Link></div><div><b>{t("footer.notes")}</b><Link href="/about">{t("footer.disclaimer")}</Link><Link href="/about#privacy">{t("footer.privacy")}</Link></div><div className="footer-note"><b>{t("footer.important")}</b><p>{t("footer.boundary")}</p></div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} Story Studio Cloud</span><span>Made for stories, not for lock-in.</span></div></footer>;
 }

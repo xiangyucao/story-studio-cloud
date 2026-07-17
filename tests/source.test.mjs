@@ -6,12 +6,19 @@ const root = new URL("../", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
 test("public landing page explains the product and its model boundary", async () => {
-  const [page, footer, about] = await Promise.all([read("app/page.tsx"), read("app/ui.tsx"), read("app/about/page.tsx")]);
-  assert.match(page, /把散落的灵感/);
-  assert.match(page, /使用 ChatGPT 登录/);
-  assert.match(footer, /不提供或转售任何 AI 模型服务/);
-  assert.match(about, /内容责任/);
-  assert.match(about, /不作保证/);
+  const [page, footer, about, i18n, layout, provider] = await Promise.all([read("app/page.tsx"), read("app/ui.tsx"), read("app/about/page.tsx"), read("lib/i18n.ts"), read("app/layout.tsx"), read("app/language-provider.tsx")]);
+  assert.match(page, /home\.headline/);
+  assert.match(page, /home\.chatgpt/);
+  assert.match(footer, /footer\.boundary/);
+  assert.match(about, /about\.contentTitle/);
+  assert.match(about, /about\.warrantyTitle/);
+  assert.match(i18n, /defaultLocale: UiLocale = "en"/);
+  assert.match(i18n, /Turn scattered ideas/);
+  assert.match(i18n, /"zh-CN"/);
+  assert.match(i18n, /"ja"/);
+  assert.match(layout, /<html lang=\{locale\}>/);
+  assert.match(provider, /ui_locale=/);
+  assert.match(provider, /localStorage\.setItem\("story-studio-ui-locale"/);
 });
 
 test("MCP remains draft-only and uses optimistic chapter revisions", async () => {
