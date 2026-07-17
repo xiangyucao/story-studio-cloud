@@ -1,0 +1,64 @@
+name: Feature request
+description: Propose a specific improvement for Story Studio Cloud.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for sharing an idea. For early brainstorming or open-ended conversation, please start in [GitHub Discussions](https://github.com/xiangyucao/story-studio-cloud/discussions/categories/ideas). Use this form when the requested outcome is reasonably clear.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the writing or project-management difficulty, not only the proposed button or screen.
+      placeholder: When I am ..., I need ..., because ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: Describe how you would like Story Studio Cloud to behave.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Related area
+      options:
+        - Outlining and story structure
+        - Chapter writing and editing
+        - Characters and relationships
+        - Worldbuilding, timeline, or logic chains
+        - AI prompts or MCP
+        - Import, export, or publishing
+        - Community library
+        - Accessibility or interface languages
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Is there a workaround today? What other approach did you consider?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add mockups, examples, or links. Do not include private manuscript text or credentials.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and discussions for a similar request.
+          required: true

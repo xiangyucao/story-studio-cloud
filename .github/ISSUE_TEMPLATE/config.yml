@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and help
+    url: https://github.com/xiangyucao/story-studio-cloud/discussions/categories/q-a
+    about: Ask how to use Story Studio Cloud or get help with a workflow.
+  - name: Ideas and open-ended feedback
+    url: https://github.com/xiangyucao/story-studio-cloud/discussions/categories/ideas
+    about: Discuss an idea before turning it into a specific feature request.
+  - name: General community conversation
+    url: https://github.com/xiangyucao/story-studio-cloud/discussions/categories/general
+    about: Talk with other users and the maintainer.

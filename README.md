@@ -144,9 +144,14 @@ The Drizzle schema in `db/schema.ts` contains:
 
 Database migrations live in `drizzle/`.
 
-## Contact and contributions
+## Community, support, and contributions
 
-For questions, bug reports, feature ideas, security concerns, or public-content reports, please [open a GitHub issue](https://github.com/xiangyucao/story-studio-cloud/issues). Pull requests are welcome.
+- Ask questions, discuss ideas, and share your work in [GitHub Discussions](https://github.com/xiangyucao/story-studio-cloud/discussions).
+- Report reproducible bugs or request a clearly scoped feature with the [GitHub Issue forms](https://github.com/xiangyucao/story-studio-cloud/issues/new/choose).
+- Report security vulnerabilities privately through [GitHub Security Advisories](https://github.com/xiangyucao/story-studio-cloud/security/advisories/new).
+- Read [SUPPORT.md](SUPPORT.md) before posting private story text or credentials.
+
+Pull requests are welcome. This is a spare-time open-source project, so response times and implementation dates cannot be guaranteed.
 
 ## License
 
