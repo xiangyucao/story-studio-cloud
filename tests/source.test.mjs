@@ -24,9 +24,16 @@ test("MCP remains draft-only and uses optimistic chapter revisions", async () =>
 });
 
 test("structured data has ownership and private-by-default fields", async () => {
-  const schema = await read("db/schema.ts");
+  const [schema, studio, workPage] = await Promise.all([
+    read("db/schema.ts"),
+    read("app/studio/page.tsx"),
+    read("app/studio/works/[id]/page.tsx"),
+  ]);
   assert.match(schema, /ownerEmail/);
   assert.match(schema, /isPublished[^\n]+default\(false\)/);
   assert.match(schema, /tokenHash/);
   assert.match(schema, /isHardSetting/);
+  assert.match(studio, /where\(eq\(works\.ownerEmail, user\.email\)\)/);
+  assert.match(studio, /inArray\(chapters\.workId/);
+  assert.match(workPage, /eq\(works\.ownerEmail, user\.email\)/);
 });
