@@ -5,6 +5,7 @@ import { getPublicWorks } from "@/lib/queries";
 import { Brand, SiteFooter, SiteHeader } from "./ui";
 import { getUiLocale } from "@/lib/i18n-server";
 import { translate } from "@/lib/i18n";
+import { AmazonRecommendations } from "./amazon-recommendations";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,8 @@ export default async function Home() {
             <article className="feature-card"><span className="feature-no">03</span><h3>{t("home.feature3Title")}</h3><p>{t("home.feature3Body")}</p><div className="model-row"><span>ChatGPT</span><span>Gemini</span><span>Local</span><span>Codex / MCP</span></div></article>
           </div>
         </section>
+
+        <section className="wrap affiliate-home"><AmazonRecommendations /></section>
 
         <section className="library-preview" id="library">
           <div className="wrap">
