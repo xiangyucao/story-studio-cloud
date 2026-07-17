@@ -88,14 +88,19 @@ It uses Bearer-token authentication and currently exposes:
 
 - `story_list_works`
 - `story_create_work`
+- `story_update_work`
 - `story_list_outline`
+- `story_manage_outline`
 - `story_get_context`
+- `story_manage_context`
 - `story_get_chapter`
 - `story_save_chapter`
 
 `story_save_chapter` requires the most recently read `expectedRevision`. A version mismatch is rejected. The plaintext token is displayed once; only its SHA-256 hash is stored.
 
-`story_create_work` creates only a private work with its first volume and chapter. MCP still cannot publish a work or chapter.
+`story_create_work` creates only a private work with its first volume and chapter. `story_update_work` can maintain the work foundation and reference excerpt. `story_manage_outline` can add, edit, move, and delete volumes or chapters; chapter edits use revision checks, and destructive deletions require both an explicit confirmation and the exact current title. `story_manage_context` provides create, update, and delete operations for characters, relationships, worldbuilding, timeline events, and logic chains.
+
+MCP still cannot publish a work or chapter, delete an entire work, or make a private draft public. Those actions stay in the signed-in web studio.
 
 ### 5. Share a finished story
 

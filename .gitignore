@@ -36,9 +36,11 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /.wrangler/
 /outputs/
 /work/
 .dev.out.log
 .dev.err.log
+.visual-test.*.log

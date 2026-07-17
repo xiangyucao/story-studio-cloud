@@ -114,3 +114,83 @@
 /* Connections */
 .connection-page { max-width: 1040px; }.connection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; margin-top: 37px; }.connection-card { min-height: 310px; position: relative; padding: 31px; overflow: hidden; border: 1px solid #dbd3c8; border-radius: 12px; background: #fffdfa; }.connection-card.accent { color: #fff; border-color: #29473e; background: #29473e; }.connection-icon { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 10px; color: #b95038; background: #f7e6e1; font-size: 22px; margin-bottom: 25px; }.connection-card.accent .connection-icon { color: #29473e; background: #e2b76c; }.connection-card h2 { margin: 7px 0 10px; font: 500 27px Georgia,"Noto Serif SC",serif; }.connection-card > p { max-width: 480px; color: #766f68; font-size: 12px; line-height: 1.8; }.connection-card.accent > p { color: #bdcbc5; }.connection-card ul { margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; list-style: none; color: #625b55; font-size: 10px; }.connection-card li::before { content: "✓"; margin-right: 8px; color: #5d846f; }.endpoint-box { margin-top: 29px; padding: 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 7px; background: rgba(255,255,255,.06); }.endpoint-box small { display: block; color: #aebfb8; font-size: 8px; }.endpoint-box code { display: block; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; color: #fff; font-size: 10px; }.token-section, .mcp-guide { margin-top: 20px; padding: 29px; border: 1px solid #ddd5ca; border-radius: 12px; background: rgba(255,255,255,.65); }.token-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }.token-heading h2,.mcp-guide h2 { margin: 0 0 5px; font: 500 24px Georgia,"Noto Serif SC",serif; }.token-heading p { margin: 0; color: #837b74; font-size: 10px; }.token-heading form { display: flex; gap: 8px; }.token-heading input { min-width: 220px; padding: 10px; border: 1px solid #d8d0c5; border-radius: 6px; outline: 0; background: #fff; font-size: 10px; }.new-token { margin-top: 20px; padding: 15px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid #d4b36c; border-radius: 7px; background: #fff6df; }.new-token b,.new-token code { display: block; }.new-token b { color: #74551f; font-size: 10px; }.new-token code { margin-top: 6px; max-width: 590px; overflow-wrap: anywhere; color: #4f4432; font-size: 10px; }.token-list { margin-top: 20px; border-top: 1px solid #e3dcd2; }.token-list > div { min-height: 67px; display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 1px solid #e7e0d7; }.token-list b,.token-list code { display: block; }.token-list b { font-size: 11px; }.token-list code { margin-top: 4px; color: #817971; font-size: 9px; }.token-list > div > div:last-child { display: flex; align-items: center; gap: 15px; color: #8c837b; font-size: 9px; }.token-list button { border: 0; color: #a54032; background: transparent; font-size: 9px; }.token-list .revoked { opacity: .5; }.token-empty { color: #9b928a; font-size: 10px; }.mcp-guide { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }.mcp-guide h2,.mcp-guide aside { grid-column: 1/-1; }.mcp-guide > div { display: flex; gap: 10px; }.mcp-guide > div > span { color: #b95038; font: italic 18px Georgia,serif; }.mcp-guide p { margin: 0; color: #766f68; font-size: 10px; line-height: 1.6; }.mcp-guide p b { display: block; color: #3f3935; font-size: 11px; }.mcp-guide aside { padding: 11px; color: #557064; background: #e5ede8; border-radius: 6px; font-size: 9px; }
 @media(max-width:760px){.connection-grid{grid-template-columns:1fr}.token-heading{align-items:stretch;flex-direction:column}.token-heading form{align-items:stretch;flex-direction:column}.token-heading input{min-width:0}.new-token{align-items:stretch;flex-direction:column}.mcp-guide{grid-template-columns:1fr}.mcp-guide h2,.mcp-guide aside{grid-column:1}.token-list>div{align-items:flex-start;padding:13px 0;flex-direction:column}.connection-page{padding-bottom:80px}}
+
+/* Comfortable typography for high-resolution displays */
+@media (min-width: 761px) {
+.studio-shell { font-size: 16px; }
+.studio-rail nav a span { font-size: 12px; }
+.studio-topbar > div:first-child span { font-size: 10px; }
+.studio-topbar > div:first-child b { font-size: 18px; }
+.private-badge { font-size: 12px; }
+.topbar-user, .topbar-link { font-size: 14px; }
+.studio-kicker { font-size: 11px; }
+.dashboard-heading p { font-size: 15px; line-height: 1.7; }
+.studio-button { font-size: 14px; }
+.delete-modal > p, .dashboard-error { font-size: 14px; }
+.dashboard-stats span { font-size: 13px; }
+.work-card-cover small, .work-card-cover span, .work-card-title span { font-size: 11px; }
+.work-card-copy > p { font-size: 14px; }
+.work-card-foot { font-size: 12px; }
+.dashboard-empty p { font-size: 15px; }
+.studio-modal > p { font-size: 14px; line-height: 1.7; }
+.studio-modal label { font-size: 14px; }
+.studio-modal input, .studio-modal textarea, .studio-modal select { font-size: 15px; line-height: 1.55; }
+.form-error { font-size: 13px; }
+.work-crumb { font-size: 14px; }
+.draft-dot, .published-dot, .save-state { font-size: 12px; }
+.panel-title span { font-size: 10px; }
+.panel-title b { font-size: 18px; }
+.volume-row > button:first-child { font-size: 13px; }
+.volume-row b { font-size: 14px; }
+.chapter-nodes > button { min-height: 62px; }
+.chapter-nodes > button > span { font-size: 14px; }
+.chapter-nodes b { max-width: 178px; font-size: 13px; }
+.chapter-nodes small { max-width: 178px; font-size: 11px; }
+.outline-foot { font-size: 11px; }
+.chapter-context small, .chapter-context > label { font-size: 11px; }
+.chapter-context > label input { font-size: 14px; }
+.outline-input { min-height: 98px; font-size: 15px; line-height: 1.75; }
+.ai-compose { font-size: 13px; }
+.editor-toolbar > div { font-size: 12px; }
+.manuscript-editor { font-size: 19px; line-height: 2; }
+.context-heading span { font-size: 17px; }
+.context-heading small { font-size: 12px; line-height: 1.45; }
+.context-heading button { font-size: 12px; }
+.context-tabs { height: 47px; }
+.context-tabs button { font-size: 13px; }
+.context-list article { padding-block: 14px; }
+.context-avatar { width: 32px; height: 32px; font-size: 13px; }
+.context-list b { font-size: 13px; }
+.context-list small { font-size: 11px; }
+.context-list p { font-size: 12px; line-height: 1.65; }
+.context-list em { font-size: 10px; }
+.context-empty { font-size: 13px; }
+.context-note b { font-size: 12px; }
+.context-note p { font-size: 11px; line-height: 1.6; }
+.prompt-drawer-head p, .prompt-drawer > textarea { font-size: 14px; }
+.prompt-actions span { font-size: 12px; }
+.context-manager > header p { font-size: 13px; }
+.context-manager > nav button { font-size: 13px; }
+.context-manager > nav span { font-size: 11px; }
+.context-edit-list article { min-height: 67px; }
+.context-edit-list b { font-size: 14px; }
+.context-edit-list span, .delete-context { font-size: 12px; }
+.context-manager-empty { font-size: 13px; }
+.context-manager-body form label { font-size: 13px; }
+.context-manager-body input, .context-manager-body textarea, .context-manager-body select { font-size: 14px; line-height: 1.55; }
+.context-form-title b { font-size: 20px; }
+.context-form-title button { font-size: 12px; }
+.connection-card > p, .connection-card ul { font-size: 14px; }
+.endpoint-box small { font-size: 11px; }
+.endpoint-box code { font-size: 13px; }
+.token-heading p, .token-heading input, .new-token b, .new-token code { font-size: 13px; }
+.token-list b { font-size: 14px; }
+.token-list code, .token-list > div > div:last-child, .token-list button, .token-empty { font-size: 12px; }
+.mcp-guide p { font-size: 13px; }
+.mcp-guide p b { font-size: 14px; }
+.mcp-guide aside { font-size: 12px; }
+}
+
+@media (min-width: 1101px) {
+  .workbench-grid { grid-template-columns: 282px minmax(460px,1fr) 330px; }
+}

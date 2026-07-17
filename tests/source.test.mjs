@@ -31,18 +31,25 @@ test("MCP remains draft-only and uses optimistic chapter revisions", async () =>
   const mcp = await read("app/api/mcp/route.ts");
   assert.match(mcp, /story_get_context/);
   assert.match(mcp, /story_create_work/);
+  assert.match(mcp, /story_update_work/);
+  assert.match(mcp, /story_manage_outline/);
+  assert.match(mcp, /story_manage_context/);
   assert.match(mcp, /story_save_chapter/);
   assert.match(mcp, /expectedRevision/);
+  assert.match(mcp, /confirmDelete/);
+  assert.match(mcp, /confirmTitle/);
   assert.match(mcp, /不能发布章节/);
   assert.doesNotMatch(mcp, /isPublished:\s*true/);
   assert.match(mcp, /isPublished:\s*false/);
+  assert.doesNotMatch(mcp, /delete\(works\)/);
 });
 
 test("structured data has ownership and private-by-default fields", async () => {
-  const [schema, studio, workPage] = await Promise.all([
+  const [schema, studio, workPage, studioCss] = await Promise.all([
     read("db/schema.ts"),
     read("app/studio/page.tsx"),
     read("app/studio/works/[id]/page.tsx"),
+    read("app/studio/studio.css"),
   ]);
   assert.match(schema, /ownerEmail/);
   assert.match(schema, /isPublished[^\n]+default\(false\)/);
@@ -51,4 +58,6 @@ test("structured data has ownership and private-by-default fields", async () => 
   assert.match(studio, /where\(eq\(works\.ownerEmail, user\.email\)\)/);
   assert.match(studio, /inArray\(chapters\.workId/);
   assert.match(workPage, /eq\(works\.ownerEmail, user\.email\)/);
+  assert.match(studioCss, /Comfortable typography for high-resolution displays/);
+  assert.match(studioCss, /\.manuscript-editor \{ font-size: 19px/);
 });
