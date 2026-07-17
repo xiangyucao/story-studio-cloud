@@ -30,10 +30,12 @@ test("public landing page explains the product and its model boundary", async ()
 test("MCP remains draft-only and uses optimistic chapter revisions", async () => {
   const mcp = await read("app/api/mcp/route.ts");
   assert.match(mcp, /story_get_context/);
+  assert.match(mcp, /story_create_work/);
   assert.match(mcp, /story_save_chapter/);
   assert.match(mcp, /expectedRevision/);
   assert.match(mcp, /不能发布章节/);
   assert.doesNotMatch(mcp, /isPublished:\s*true/);
+  assert.match(mcp, /isPublished:\s*false/);
 });
 
 test("structured data has ownership and private-by-default fields", async () => {

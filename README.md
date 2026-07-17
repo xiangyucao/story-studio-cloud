@@ -87,12 +87,15 @@ https://your-domain.example/api/mcp
 It uses Bearer-token authentication and currently exposes:
 
 - `story_list_works`
+- `story_create_work`
 - `story_list_outline`
 - `story_get_context`
 - `story_get_chapter`
 - `story_save_chapter`
 
 `story_save_chapter` requires the most recently read `expectedRevision`. A version mismatch is rejected. The plaintext token is displayed once; only its SHA-256 hash is stored.
+
+`story_create_work` creates only a private work with its first volume and chapter. MCP still cannot publish a work or chapter.
 
 ### 5. Share a finished story
 

@@ -3,11 +3,13 @@ import { getDb } from "@/db";
 import { chapters, volumes, works } from "@/db/schema";
 import { ownerFromBearer, ownedWork } from "@/lib/authz";
 import { getWorkBundle } from "@/lib/queries";
+import { createId, createSlug } from "@/lib/ids";
 
 type Rpc = { jsonrpc?: string; id?: string | number | null; method?: string; params?: { name?: string; arguments?: Record<string, unknown> } };
 const headers = { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, content-type, mcp-protocol-version" };
 const tools = [
   { name: "story_list_works", description: "列出当前作者的全部作品及发布状态。", inputSchema: { type: "object", properties: {}, additionalProperties: false } },
+  { name: "story_create_work", description: "创建一部默认私密的新作品，并建立第一卷和第一章。不能自动发布。", inputSchema: { type: "object", properties: { title: { type: "string", maxLength: 160 }, description: { type: "string" }, genre: { type: "string" }, language: { type: "string" }, premise: { type: "string" }, styleGuide: { type: "string" }, volumeTitle: { type: "string" }, volumeSynopsis: { type: "string" }, chapterTitle: { type: "string" }, chapterOutline: { type: "string" }, targetWords: { type: "integer", minimum: 100, maximum: 30000 } }, required: ["title"], additionalProperties: false } },
   { name: "story_list_outline", description: "读取一部作品的卷、章、大纲、字数目标和章节版本号。", inputSchema: { type: "object", properties: { workId: { type: "string" } }, required: ["workId"], additionalProperties: false } },
   { name: "story_get_context", description: "读取作品基石、人物关系、世界观、时间线和逻辑链，用于保持创作连续性。", inputSchema: { type: "object", properties: { workId: { type: "string" } }, required: ["workId"], additionalProperties: false } },
   { name: "story_get_chapter", description: "读取单章标题、大纲、正文和版本号。", inputSchema: { type: "object", properties: { workId: { type: "string" }, chapterId: { type: "string" } }, required: ["workId", "chapterId"], additionalProperties: false } },
@@ -40,6 +42,22 @@ export async function POST(request: Request) {
 async function callTool(owner: string, name: string, args: Record<string, unknown>) {
   const db = getDb();
   if (name === "story_list_works") return { works: await db.select({ id: works.id, title: works.title, description: works.description, genre: works.genre, language: works.language, isPublished: works.isPublished, updatedAt: works.updatedAt }).from(works).where(eq(works.ownerEmail, owner)).orderBy(asc(works.title)) };
+  if (name === "story_create_work") {
+    const title = requiredString(args.title, "title").trim();
+    if (title.length > 160) throw new Error("title 不能超过 160 个字符");
+    const language = optionalString(args.language) || "en";
+    const now = new Date().toISOString();
+    const workId = createId("wrk"), volumeId = createId("vol"), chapterId = createId("chp");
+    const volumeTitle = optionalString(args.volumeTitle) || (language.startsWith("zh") ? "第一卷" : "Volume One");
+    const chapterTitle = optionalString(args.chapterTitle) || (language.startsWith("zh") ? "未命名章节" : "Untitled Chapter");
+    const targetWords = Math.min(30000, Math.max(100, Number.isInteger(Number(args.targetWords)) ? Number(args.targetWords) : 3000));
+    await db.batch([
+      db.insert(works).values({ id: workId, ownerEmail: owner, title, slug: createSlug(title), description: optionalString(args.description), genre: optionalString(args.genre) || "Uncategorized", language, premise: optionalString(args.premise), styleGuide: optionalString(args.styleGuide), isPublished: false, createdAt: now, updatedAt: now }),
+      db.insert(volumes).values({ id: volumeId, workId, position: 1, title: volumeTitle, synopsis: optionalString(args.volumeSynopsis), createdAt: now, updatedAt: now }),
+      db.insert(chapters).values({ id: chapterId, workId, volumeId, position: 1, title: chapterTitle, outline: optionalString(args.chapterOutline), content: "", targetWords, status: "outline", isPublished: false, revision: 1, createdAt: now, updatedAt: now }),
+    ]);
+    return { created: true, work: { id: workId, title, isPublished: false }, volume: { id: volumeId, title: volumeTitle }, chapter: { id: chapterId, title: chapterTitle, revision: 1 } };
+  }
   const workId = requiredString(args.workId, "workId");
   const work = await ownedWork(workId, owner); if (!work) throw new Error("作品不存在或无权访问");
   if (name === "story_list_outline") {
@@ -65,5 +83,6 @@ async function callTool(owner: string, name: string, args: Record<string, unknow
 }
 
 function requiredString(value: unknown, label: string, allowEmpty = false) { if (typeof value !== "string" || (!allowEmpty && !value.trim())) throw new Error(`${label} 必须是字符串`); return value; }
+function optionalString(value: unknown) { return typeof value === "string" ? value.trim() : ""; }
 function rpcResult(id: Rpc["id"], result: unknown) { return Response.json({ jsonrpc: "2.0", id: id ?? null, result }, { headers }); }
 function rpcError(id: Rpc["id"], code: number, message: string) { return Response.json({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }, { status: code === -32700 ? 400 : 200, headers }); }
