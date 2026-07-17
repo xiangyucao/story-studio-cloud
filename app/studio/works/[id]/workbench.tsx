@@ -1,0 +1,139 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+
+type Work = { id: string; title: string; description: string; genre: string; language: string; premise: string; styleGuide: string; referenceExcerpt: string; isPublished: boolean; slug: string; updatedAt: string };
+type Volume = { id: string; workId: string; position: number; title: string; synopsis: string };
+type Chapter = { id: string; workId: string; volumeId: string; position: number; title: string; outline: string; content: string; targetWords: number; status: string; isPublished: boolean; revision: number; updatedAt: string };
+type Character = { id: string; name: string; role: string; description: string; personality: string; goal: string };
+type Relationship = { id: string; sourceCharacterId: string; targetCharacterId: string; relationship: string; description: string };
+type WorldEntry = { id: string; category: string; title: string; content: string; isHardSetting: boolean };
+type TimelineEvent = { id: string; position: number; timeLabel: string; title: string; content: string };
+type LogicLink = { id: string; fromRef: string; relation: string; toRef: string; notes: string; status: string };
+type Bundle = { volumes: Volume[]; chapters: Chapter[]; characters: Character[]; relationships: Relationship[]; world: WorldEntry[]; timeline: TimelineEvent[]; logicLinks: LogicLink[] };
+
+export function Workbench({ initialWork, initialBundle }: { initialWork: Work; initialBundle: Bundle }) {
+  const [work, setWork] = useState(initialWork);
+  const [volumes, setVolumes] = useState(initialBundle.volumes);
+  const [chapters, setChapters] = useState(initialBundle.chapters);
+  const [bundle, setBundle] = useState(initialBundle);
+  const [selectedId, setSelectedId] = useState(initialBundle.chapters[0]?.id ?? "");
+  const [expanded, setExpanded] = useState(() => new Set(initialBundle.volumes.map((item) => item.id)));
+  const [draft, setDraft] = useState(() => initialBundle.chapters[0] ?? null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [contextTab, setContextTab] = useState<"characters" | "world" | "timeline" | "logic">("characters");
+  const [promptOpen, setPromptOpen] = useState(false);
+  const [addDialog, setAddDialog] = useState<{ type: "volume" | "chapter"; volumeId?: string } | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
+  const selected = chapters.find((item) => item.id === selectedId) ?? null;
+  const selectedVolume = volumes.find((item) => item.id === selected?.volumeId);
+  const wordCount = draft?.content.trim() ? draft.content.trim().split(/\s+|(?<=[\u3400-\u9fff\u3040-\u30ff])/).filter(Boolean).length : 0;
+
+  function chooseChapter(chapter: Chapter) { setSelectedId(chapter.id); setDraft(chapter); setSaveState("idle"); }
+  function toggleVolume(id: string) { setExpanded((current) => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }
+  async function saveChapter() {
+    if (!draft) return; setSaveState("saving");
+    const response = await fetch(`/api/works/${work.id}/chapters/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ title: draft.title, outline: draft.outline, content: draft.content, targetWords: draft.targetWords, isPublished: draft.isPublished, status: draft.content.trim() ? "draft" : "outline", revision: draft.revision }) });
+    const result = await response.json() as { chapter?: Chapter };
+    if (!response.ok || !result.chapter) { setSaveState("error"); return; }
+    setDraft(result.chapter); setChapters((items) => items.map((item) => item.id === result.chapter!.id ? result.chapter! : item)); setSaveState("saved");
+  }
+  async function addOutline(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); if (!addDialog) return;
+    const values = Object.fromEntries(new FormData(event.currentTarget));
+    const response = await fetch(`/api/works/${work.id}/outline`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...values, type: addDialog.type, volumeId: addDialog.volumeId }) });
+    const result = await response.json() as { volume?: Volume; chapter?: Chapter };
+    if (result.volume) { setVolumes((items) => [...items, result.volume!]); setExpanded((items) => new Set([...items, result.volume!.id])); }
+    if (result.chapter) { setChapters((items) => [...items, result.chapter!]); setExpanded((items) => new Set([...items, result.chapter!.volumeId])); chooseChapter(result.chapter); }
+    setAddDialog(null);
+  }
+  async function saveSettings(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); const values = Object.fromEntries(new FormData(event.currentTarget));
+    const response = await fetch(`/api/works/${work.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...values, isPublished: values.isPublished === "on" }) });
+    const result = await response.json() as { work?: Work };
+    if (result.work) setWork(result.work); setSettingsOpen(false);
+  }
+  const prompt = useMemo(() => draft ? buildPrompt(work, selectedVolume, draft, bundle) : "", [work, selectedVolume, draft, bundle]);
+
+  return <div className="workbench"><header className="workbench-head"><div className="work-crumb"><Link href="/studio">我的作品</Link><span>›</span><b>{work.title}</b><span className={work.isPublished ? "published-dot" : "draft-dot"}>{work.isPublished ? "已公开" : "私人草稿"}</span></div><div><span className={`save-state ${saveState}`}>{saveState === "saving" ? "正在保存…" : saveState === "saved" ? "已保存" : saveState === "error" ? "保存失败" : ""}</span><a className="studio-button quiet" href={`/api/works/${work.id}/backup`}>完整备份 ⇧</a><button className="studio-button quiet" onClick={() => setSettingsOpen(true)}>作品设置</button>{work.isPublished && <Link className="studio-button quiet" href={`/read/${work.slug}`}>阅读页 ↗</Link>}<button className="studio-button primary" onClick={saveChapter}>保存章节</button></div></header>
+    <div className="workbench-grid"><aside className="outline-panel"><div className="panel-title"><div><span>MANUSCRIPT</span><b>故事大纲</b></div><button className="round-add" onClick={() => setAddDialog({ type: "volume" })} title="添加卷">＋</button></div><div className="outline-tree">{volumes.map((volume) => <div className="volume-node" key={volume.id}><div className="volume-row"><button onClick={() => toggleVolume(volume.id)}>{expanded.has(volume.id) ? "⌄" : "›"}<span>第 {volume.position} 卷</span><b>{volume.title}</b></button><button className="node-add" title="添加章节" onClick={() => setAddDialog({ type: "chapter", volumeId: volume.id })}>＋</button></div>{expanded.has(volume.id) && <div className="chapter-nodes">{chapters.filter((chapter) => chapter.volumeId === volume.id).sort((a,b) => a.position-b.position).map((chapter) => <button className={chapter.id === selectedId ? "active" : ""} onClick={() => chooseChapter(chapter)} key={chapter.id}><span>{String(chapter.position).padStart(2,"0")}</span><div><b>{chapter.title}</b><small>{chapter.content.trim() ? `${countWords(chapter.content).toLocaleString()} 字` : "未开始"}{chapter.isPublished ? " · 已发布" : ""}</small></div><i className={chapter.content.trim() ? "has-draft" : ""} /></button>)}</div>}</div>)}</div><div className="outline-foot"><span>{volumes.length} 卷</span><span>{chapters.length} 章</span><span>{chapters.reduce((sum,item) => sum+countWords(item.content),0).toLocaleString()} 字</span></div></aside>
+      <main className="editor-panel">{draft ? <><div className="chapter-context"><div><small>LATEST OUTLINE · V{draft.revision}</small><input aria-label="章节标题" value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></div><label>建议字数<input type="number" min={100} max={30000} value={draft.targetWords} onChange={(event) => setDraft({ ...draft, targetWords: Number(event.target.value) })} /></label></div><textarea className="outline-input" aria-label="章节大纲" value={draft.outline} onChange={(event) => setDraft({ ...draft, outline: event.target.value })} placeholder="这一章发生什么？人物的目标、阻碍和结尾钩子是什么？" /><div className="editor-toolbar"><button className="ai-compose" onClick={() => setPromptOpen(true)}>✦ 按大纲生成 AI 提示词</button><div><span>{wordCount.toLocaleString()} / {draft.targetWords.toLocaleString()} 字</span><label className="publish-check"><input type="checkbox" checked={draft.isPublished} onChange={(event) => setDraft({ ...draft, isPublished: event.target.checked })} />发布本章</label></div></div><textarea className="manuscript-editor" aria-label="章节正文" spellCheck value={draft.content} onChange={(event) => { setDraft({ ...draft, content: event.target.value }); setSaveState("idle"); }} placeholder="从这里开始写故事……\n\n你也可以点击上方按钮，把完整提示词复制到自己的 AI，然后将结果贴回这里。" /></> : <div className="editor-empty">请先添加一个章节。</div>}</main>
+      <aside className="context-panel"><div className="context-heading"><div><span>本章 AI 上下文</span><small>生成提示词时自动带入</small></div><button onClick={() => setContextOpen(true)}>管理</button></div><div className="context-tabs"><button className={contextTab === "characters" ? "active" : ""} onClick={() => setContextTab("characters")}>人物</button><button className={contextTab === "world" ? "active" : ""} onClick={() => setContextTab("world")}>设定</button><button className={contextTab === "timeline" ? "active" : ""} onClick={() => setContextTab("timeline")}>时间</button><button className={contextTab === "logic" ? "active" : ""} onClick={() => setContextTab("logic")}>逻辑</button></div><ContextList tab={contextTab} bundle={bundle} /><div className="context-note"><b>隐私提示</b><p>这些内容只在浏览器中组成提示词。除非你主动复制给外部模型，否则本站不会发送。</p></div></aside>
+    </div>
+    {promptOpen && <div className="prompt-drawer"><div className="prompt-drawer-head"><div><span className="studio-kicker">EXTERNAL AI PROMPT</span><h2>复制到你自己的模型</h2><p>提示词已包含作品基石、本章大纲、人物、关系、硬设定、时间线和逻辑链。</p></div><button onClick={() => setPromptOpen(false)}>×</button></div><textarea value={prompt} readOnly /><div className="prompt-actions"><span>本站不会发送这段内容，也不会消耗任何模型额度。</span><button className="studio-button primary" onClick={async () => { await navigator.clipboard.writeText(prompt); }}>复制完整提示词</button></div></div>}
+    {addDialog && <div className="modal-backdrop" onMouseDown={(event) => { if (event.currentTarget === event.target) setAddDialog(null); }}><section className="studio-modal"><button className="modal-close" onClick={() => setAddDialog(null)}>×</button><span className="studio-kicker">{addDialog.type === "volume" ? "NEW VOLUME" : "NEW CHAPTER"}</span><h2>{addDialog.type === "volume" ? "添加一卷" : "添加一章"}</h2><form onSubmit={addOutline}><label>标题<input required name="title" autoFocus placeholder={addDialog.type === "volume" ? "这一卷的名字" : "这一章的名字"} /></label><label>{addDialog.type === "volume" ? "本卷介绍" : "章节大纲"}<textarea rows={5} name={addDialog.type === "volume" ? "synopsis" : "outline"} placeholder="目标、冲突、关键变化与结尾钩子" /></label><div className="modal-actions"><button type="button" className="studio-button quiet" onClick={() => setAddDialog(null)}>取消</button><button className="studio-button primary">添加</button></div></form></section></div>}
+    {settingsOpen && <div className="modal-backdrop" onMouseDown={(event) => { if (event.currentTarget === event.target) setSettingsOpen(false); }}><section className="studio-modal settings-modal"><button className="modal-close" onClick={() => setSettingsOpen(false)}>×</button><span className="studio-kicker">WORK SETTINGS</span><h2>作品基石与发布</h2><form onSubmit={saveSettings}><label>作品名<input name="title" defaultValue={work.title} required /></label><div className="field-row"><label>类型<input name="genre" defaultValue={work.genre} /></label><label>语言<input name="language" defaultValue={work.language} /></label></div><label>简介<textarea name="description" rows={3} defaultValue={work.description} /></label><label>核心构想<textarea name="premise" rows={4} defaultValue={work.premise} /></label><label>写作规则 / 风格指南<textarea name="styleGuide" rows={5} defaultValue={work.styleGuide} /></label><label>参考范本<textarea name="referenceExcerpt" rows={5} defaultValue={work.referenceExcerpt} /></label><label className="publish-setting"><input type="checkbox" name="isPublished" defaultChecked={work.isPublished} /><span><b>公开作品主页</b><small>只有同时勾选“发布本章”的章节才会让读者看到。</small></span></label><div className="modal-actions"><button type="button" className="studio-button quiet" onClick={() => setSettingsOpen(false)}>取消</button><button className="studio-button primary">保存设置</button></div></form></section></div>}
+    {contextOpen && <ContextManager workId={work.id} bundle={bundle} onClose={() => setContextOpen(false)} onChange={setBundle} />}
+  </div>;
+}
+
+function ContextList({ tab, bundle }: { tab: "characters" | "world" | "timeline" | "logic"; bundle: Bundle }) {
+  if (tab === "characters") return <div className="context-list">{bundle.characters.length ? bundle.characters.map((item) => <article key={item.id}><span className="context-avatar">{item.name.slice(0,1)}</span><div><b>{item.name}</b><small>{item.role || "人物"}</small><p>{item.personality || item.description || "暂无描述"}</p></div></article>) : <EmptyContext text="还没有人物。点击上方“管理”添加。" />}</div>;
+  if (tab === "world") return <div className="context-list simple">{bundle.world.length ? bundle.world.map((item) => <article key={item.id}><div><b>{item.title}{item.isHardSetting && <em>硬设定</em>}</b><small>{item.category}</small><p>{item.content}</p></div></article>) : <EmptyContext text="还没有世界观设定。" />}</div>;
+  if (tab === "timeline") return <div className="context-list simple">{bundle.timeline.length ? bundle.timeline.map((item) => <article key={item.id}><div><b>{item.title}</b><small>{item.timeLabel || `顺序 ${item.position}`}</small><p>{item.content}</p></div></article>) : <EmptyContext text="还没有时间线事件。" />}</div>;
+  return <div className="context-list simple">{bundle.logicLinks.length ? bundle.logicLinks.map((item) => <article key={item.id}><div><b>{item.fromRef} → {item.toRef}</b><small>{item.relation}</small><p>{item.notes}</p></div></article>) : <EmptyContext text="还没有逻辑链。" />}</div>;
+}
+
+type ContextKind = "character" | "relationship" | "world" | "timeline" | "logic";
+type ContextItem = Character | Relationship | WorldEntry | TimelineEvent | LogicLink;
+
+function ContextManager({ workId, bundle, onClose, onChange }: { workId: string; bundle: Bundle; onClose: () => void; onChange: React.Dispatch<React.SetStateAction<Bundle>> }) {
+  const [tab, setTab] = useState<ContextKind>("character");
+  const [editing, setEditing] = useState<{ kind: ContextKind; item: ContextItem } | null>(null);
+  const [error, setError] = useState("");
+  const rows: Record<ContextKind, ContextItem[]> = { character: bundle.characters, relationship: bundle.relationships, world: bundle.world, timeline: bundle.timeline, logic: bundle.logicLinks };
+  function switchTab(kind: ContextKind) { setTab(kind); setEditing(null); setError(""); }
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setError(""); const values=Object.fromEntries(new FormData(event.currentTarget)); const method=editing?"PATCH":"POST";
+    const response=await fetch(`/api/works/${workId}/context`,{method,headers:{"content-type":"application/json"},body:JSON.stringify({...values,kind:tab,id:editing?.item.id,isHardSetting:values.isHardSetting==="on"})});
+    const result=await response.json() as {item?:ContextItem;error?:string}; if(!response.ok||!result.item){setError(result.error||"保存失败");return;}
+    const key=contextKey(tab); onChange((current)=>({...current,[key]:editing?(current[key] as ContextItem[]).map((item)=>item.id===result.item!.id?result.item!:item):[...(current[key] as ContextItem[]),result.item!]}));
+    setEditing(null); event.currentTarget.reset();
+  }
+  async function remove(item: ContextItem) {
+    const response=await fetch(`/api/works/${workId}/context?kind=${tab}&itemId=${encodeURIComponent(item.id)}`,{method:"DELETE"});if(!response.ok)return;
+    const key=contextKey(tab);onChange((current)=>({...current,[key]:(current[key] as ContextItem[]).filter((row)=>row.id!==item.id)}));if(editing?.item.id===item.id)setEditing(null);
+  }
+  const current=editing?.kind===tab?editing.item:null;
+  return <div className="modal-backdrop context-manager-backdrop" onMouseDown={(event)=>{if(event.currentTarget===event.target)onClose();}}><section className="context-manager"><header><div><span className="studio-kicker">STORY MEMORY</span><h2>管理人物与故事设定</h2><p>这些资料会进入每一章的 AI 提示词，请尽量写清楚、保持稳定。</p></div><button onClick={onClose}>×</button></header><nav>{([['character','人物'],['relationship','关系'],['world','世界观'],['timeline','时间线'],['logic','逻辑链']] as Array<[ContextKind,string]>).map(([kind,label])=><button className={tab===kind?"active":""} key={kind} onClick={()=>switchTab(kind)}>{label}<span>{rows[kind].length}</span></button>)}</nav><div className="context-manager-body"><div className="context-edit-list">{rows[tab].length?rows[tab].map((item)=><article className={editing?.item.id===item.id?"active":""} key={item.id}><button onClick={()=>setEditing({kind:tab,item})}><b>{contextTitle(tab,item,bundle)}</b><span>{contextSubtitle(tab,item)}</span></button><button className="delete-context" onClick={()=>remove(item)}>删除</button></article>):<div className="context-manager-empty">这个分类还没有资料。</div>}</div><form key={`${tab}-${current?.id||"new"}`} onSubmit={submit}><div className="context-form-title"><b>{current?"修改条目":"添加条目"}</b>{current&&<button type="button" onClick={()=>setEditing(null)}>取消修改</button>}</div><ContextFields kind={tab} item={current} characters={bundle.characters} />{error&&<p className="form-error">{error}</p>}<button className="studio-button primary">{current?"保存修改":"添加"}</button></form></div></section></div>;
+}
+
+function ContextFields({ kind, item, characters }: { kind: ContextKind; item: ContextItem | null; characters: Character[] }) {
+  if(kind==="character"){const value=item as Character|null;return <><label>姓名<input name="name" required defaultValue={value?.name}/></label><label>角色定位<input name="role" defaultValue={value?.role} placeholder="主角 / 对手 / 导师"/></label><label>人物描述<textarea name="description" rows={3} defaultValue={value?.description}/></label><label>个性<textarea name="personality" rows={2} defaultValue={value?.personality}/></label><label>当前目标<textarea name="goal" rows={2} defaultValue={value?.goal}/></label></>}
+  if(kind==="relationship"){const value=item as Relationship|null;return <><label>起点人物<select name="sourceCharacterId" required defaultValue={value?.sourceCharacterId||""}><option value="">请选择</option>{characters.map((person)=><option value={person.id} key={person.id}>{person.name}</option>)}</select></label><label>关系<select name="targetCharacterId" required defaultValue={value?.targetCharacterId||""}><option value="">请选择终点人物</option>{characters.map((person)=><option value={person.id} key={person.id}>{person.name}</option>)}</select></label><label>关系类型<input name="relationship" required defaultValue={value?.relationship} placeholder="父子 / 同盟 / 敌对 / 暗恋"/></label><label>关系说明<textarea name="description" rows={4} defaultValue={value?.description}/></label></>}
+  if(kind==="world"){const value=item as WorldEntry|null;return <><div className="field-row"><label>名称<input name="title" required defaultValue={value?.title}/></label><label>分类<input name="category" defaultValue={value?.category} placeholder="地点 / 规则 / 组织"/></label></div><label>详细设定<textarea name="content" rows={6} defaultValue={value?.content}/></label><label className="inline-check"><input type="checkbox" name="isHardSetting" defaultChecked={value?.isHardSetting}/><span>硬设定（AI 不得违反）</span></label></>}
+  if(kind==="timeline"){const value=item as TimelineEvent|null;return <><div className="field-row"><label>顺序<input type="number" name="position" min="1" defaultValue={value?.position||1}/></label><label>故事时间<input name="timeLabel" defaultValue={value?.timeLabel} placeholder="三年前 / 第七日"/></label></div><label>事件名<input name="title" required defaultValue={value?.title}/></label><label>事件说明<textarea name="content" rows={5} defaultValue={value?.content}/></label></>}
+  const value=item as LogicLink|null;return <><label>起因 / 前提<input name="fromRef" required defaultValue={value?.fromRef}/></label><label>逻辑关系<input name="relation" required defaultValue={value?.relation} placeholder="导致 / 依赖 / 揭示"/></label><label>结果 / 回收<input name="toRef" required defaultValue={value?.toRef}/></label><label>说明<textarea name="notes" rows={4} defaultValue={value?.notes}/></label></>;
+}
+
+function contextKey(kind:ContextKind):keyof Bundle{return kind==="character"?"characters":kind==="relationship"?"relationships":kind==="world"?"world":kind==="timeline"?"timeline":"logicLinks";}
+function contextTitle(kind:ContextKind,item:ContextItem,bundle:Bundle){if(kind==="character")return(item as Character).name;if(kind==="relationship"){const value=item as Relationship;return`${bundle.characters.find((person)=>person.id===value.sourceCharacterId)?.name||"?"} → ${bundle.characters.find((person)=>person.id===value.targetCharacterId)?.name||"?"}`;}if(kind==="world")return(item as WorldEntry).title;if(kind==="timeline")return(item as TimelineEvent).title;const value=item as LogicLink;return`${value.fromRef} → ${value.toRef}`;}
+function contextSubtitle(kind:ContextKind,item:ContextItem){if(kind==="character")return(item as Character).role||"人物";if(kind==="relationship")return(item as Relationship).relationship;if(kind==="world")return(item as WorldEntry).category;if(kind==="timeline")return(item as TimelineEvent).timeLabel||`顺序 ${(item as TimelineEvent).position}`;return(item as LogicLink).relation;}
+
+function EmptyContext({ text }: { text: string }) { return <div className="context-empty">{text}</div>; }
+function countWords(value: string) { return value.trim() ? value.trim().split(/\s+|(?<=[\u3400-\u9fff\u3040-\u30ff])/).filter(Boolean).length : 0; }
+
+const localePrompts: Record<string, { role: string; instruction: string; rules: string }> = {
+  en: { role: "You are a professional long-form fiction writer.", instruction: "Write the complete chapter from the outline and context below.", rules: "Do not add a chapter heading. Preserve continuity and hard settings. Output only the chapter prose." },
+  de: { role: "Du bist ein professioneller Autor für lange Romane.", instruction: "Schreibe das vollständige Kapitel anhand der folgenden Gliederung und des Kontexts.", rules: "Füge keine Kapitelüberschrift hinzu. Bewahre Kontinuität und feste Weltregeln. Gib nur den Kapiteltext aus." },
+  es: { role: "Eres un novelista profesional de ficción larga.", instruction: "Escribe el capítulo completo a partir del esquema y el contexto siguientes.", rules: "No añadas el título del capítulo. Mantén la continuidad y las reglas fijas del mundo. Devuelve solo la prosa." },
+  fr: { role: "Vous êtes un romancier professionnel spécialisé dans les récits longs.", instruction: "Rédigez le chapitre complet à partir du plan et du contexte ci-dessous.", rules: "N'ajoutez pas de titre de chapitre. Respectez la continuité et les règles immuables. Retournez uniquement le texte du chapitre." },
+  ja: { role: "あなたは長編小説を執筆するプロの作家です。", instruction: "以下のプロットと文脈に基づいて、章全体を書いてください。", rules: "章タイトルを付けず、連続性と厳格な世界設定を守り、本文のみを出力してください。" },
+  pt: { role: "Você é um romancista profissional de ficção longa.", instruction: "Escreva o capítulo completo com base no esboço e no contexto abaixo.", rules: "Não adicione o título do capítulo. Preserve a continuidade e as regras rígidas do mundo. Retorne apenas a prosa." },
+  ko: { role: "당신은 장편소설을 쓰는 전문 작가입니다.", instruction: "아래 개요와 맥락을 바탕으로 완전한 장을 작성하세요.", rules: "장 제목을 추가하지 말고, 연속성과 확정 설정을 지키며, 본문만 출력하세요." },
+  zh: { role: "你是一名专业的长篇小说作家。", instruction: "请根据下面的大纲与上下文，写出完整章节。", rules: "不要输出章节标题；保持前后连续，严格遵守硬设定；只输出正文。" },
+};
+
+function buildPrompt(work: Work, volume: Volume | undefined, chapter: Chapter, bundle: Bundle) {
+  const key = Object.keys(localePrompts).find((item) => work.language.toLowerCase().startsWith(item)) ?? "zh";
+  const language = localePrompts[key];
+  const names = new Map(bundle.characters.map((item) => [item.id, item.name]));
+  const charactersText = bundle.characters.map((item) => `- ${item.name} (${item.role || "role unspecified"}): ${item.description}\n  Personality: ${item.personality}\n  Goal: ${item.goal}`).join("\n") || "- None provided";
+  const relationshipsText = bundle.relationships.map((item) => `- ${names.get(item.sourceCharacterId) || item.sourceCharacterId} —${item.relationship}→ ${names.get(item.targetCharacterId) || item.targetCharacterId}: ${item.description}`).join("\n") || "- None provided";
+  const worldText = bundle.world.map((item) => `- [${item.isHardSetting ? "HARD" : item.category}] ${item.title}: ${item.content}`).join("\n") || "- None provided";
+  const timelineText = bundle.timeline.map((item) => `- ${item.timeLabel || item.position} · ${item.title}: ${item.content}`).join("\n") || "- None provided";
+  const logicText = bundle.logicLinks.map((item) => `- ${item.fromRef} —${item.relation}→ ${item.toRef}: ${item.notes}`).join("\n") || "- None provided";
+  return `${language.role}\n\n${language.instruction}\n${language.rules}\nWrite in: ${work.language}\nTarget length: about ${chapter.targetWords} words/characters.\n\n# WORK\nTitle: ${work.title}\nGenre: ${work.genre}\nPremise: ${work.premise || work.description}\nStyle guide: ${work.styleGuide || "Follow the tone implied by the outline."}\nReference excerpt (imitate only high-level style, never copy phrases):\n${work.referenceExcerpt || "None provided"}\n\n# CURRENT LOCATION\nVolume ${volume?.position ?? "?"}: ${volume?.title ?? ""}\nVolume synopsis: ${volume?.synopsis ?? ""}\nChapter ${chapter.position}: ${chapter.title}\nChapter outline:\n${chapter.outline || "No outline provided; infer a restrained scene from the premise."}\n\n# CHARACTERS\n${charactersText}\n\n# RELATIONSHIPS\n${relationshipsText}\n\n# WORLD & BACKGROUND\n${worldText}\n\n# TIMELINE\n${timelineText}\n\n# LOGIC CHAINS\n${logicText}\n\n# FINAL CHECK\nMake every action causally motivated. Do not contradict established facts. End with forward momentum. Output only the chapter prose, without a heading or commentary.`;
+}
