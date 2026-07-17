@@ -34,6 +34,8 @@ button { cursor: pointer; }
 .brand.compact b { font-size: 13px; }
 .site-header nav { display: flex; align-items: center; gap: 30px; font-size: 14px; color: #514b46; }
 .site-header nav a:hover, .login-link:hover, .text-link:hover { color: var(--terracotta); }
+.site-header nav .sponsored-nav { display: flex; align-items: center; gap: 6px; }
+.site-header nav .sponsored-nav small { padding: 2px 5px; border-radius: 8px; color: #9a5b3f; background: #f5e6dc; font-size: 7px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; }
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 16px; font-size: 14px; }
 .language-switcher { display: inline-flex; align-items: center; gap: 7px; color: #5f5750; }
 .language-switcher > span[aria-hidden] { width: 25px; height: 25px; border: 1px solid #d8d0c6; border-radius: 50%; display: grid; place-items: center; font: 600 11px Georgia,serif; background: #fffdf9; }
@@ -125,6 +127,12 @@ button { cursor: pointer; }
 .affiliate-shelf.compact { margin-top: 34px; padding: 22px; }
 .affiliate-shelf.compact h2 { font-size: 23px; }
 .affiliate-shelf.compact .affiliate-grid > a { min-height: 122px; }
+.affiliate-workbench { margin: 8px 10px 0; padding: 11px; border: 1px solid #dfd2bf; border-radius: 7px; background: linear-gradient(145deg,#fffaf1,#f3eadc); box-shadow: 0 5px 14px rgba(70,51,35,.05); }
+.affiliate-workbench > span { display: block; color: #a5543f; font-size: 7px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+.affiliate-workbench > b { display: block; margin-top: 5px; font: 500 12px Georgia,"Noto Serif SC",serif; }
+.affiliate-workbench > div { display: flex; gap: 5px; margin-top: 8px; }
+.affiliate-workbench a { flex: 1; padding: 6px; border: 1px solid #e4d8c7; border-radius: 5px; color: #944a38; background: rgba(255,255,255,.75); font-size: 8px; font-weight: 700; text-align: center; }
+.affiliate-workbench small { display: block; margin-top: 7px; color: #91867b; font-size: 6.5px; line-height: 1.4; }
 
 .library-preview { padding-block: 110px 120px; background: #202e2a; color: #fff; }
 .section-heading.light h2 { color: #fff; }

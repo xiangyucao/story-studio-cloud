@@ -100,10 +100,11 @@ test("book export offers Word, print/PDF, Markdown, backup, and reader-facing op
 });
 
 test("Amazon recommendations are contextual, disclosed, and use the configured associate tag", async () => {
-  const [component, home, studio, footer, about, i18n] = await Promise.all([
+  const [component, home, studio, workbench, footer, about, i18n] = await Promise.all([
     read("app/amazon-recommendations.tsx"),
     read("app/page.tsx"),
     read("app/studio/studio-home.tsx"),
+    read("app/studio/works/[id]/workbench.tsx"),
     read("app/ui.tsx"),
     read("app/about/page.tsx"),
     read("lib/i18n.ts"),
@@ -114,6 +115,9 @@ test("Amazon recommendations are contextual, disclosed, and use the configured a
   assert.match(component, /As an Amazon Associate I earn from qualifying purchases\./);
   assert.match(home, /AmazonRecommendations/);
   assert.match(studio, /AmazonRecommendations compact/);
+  assert.match(workbench, /AmazonWorkbenchRecommendation/);
+  assert.match(component, /id=\{compact \? "studio-writers-shelf" : "writers-shelf"\}/);
+  assert.match(footer, /href="\/#writers-shelf"/);
   assert.match(footer, /As an Amazon Associate I earn from qualifying purchases\./);
   assert.match(about, /affiliate\.aboutTitle/);
   assert.match(i18n, /affiliate\.craft/);

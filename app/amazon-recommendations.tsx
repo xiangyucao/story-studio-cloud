@@ -12,9 +12,22 @@ const recommendations = [
 
 export function AmazonRecommendations({ compact = false }: { compact?: boolean }) {
   const { t } = useI18n();
-  return <aside className={`affiliate-shelf ${compact ? "compact" : ""}`} aria-labelledby={`affiliate-title-${compact ? "studio" : "home"}`}>
+  return <aside id={compact ? "studio-writers-shelf" : "writers-shelf"} className={`affiliate-shelf ${compact ? "compact" : ""}`} aria-labelledby={`affiliate-title-${compact ? "studio" : "home"}`}>
     <header><div><span className="affiliate-label">{t("affiliate.label")}</span><h2 id={`affiliate-title-${compact ? "studio" : "home"}`}>{t("affiliate.title")}</h2><p>{t("affiliate.intro")}</p></div><small>{t("affiliate.paidLink")} · As an Amazon Associate I earn from qualifying purchases.</small></header>
     <div className="affiliate-grid">{recommendations.map((item) => <a key={item.key} href={amazonSearch(item.query)} target="_blank" rel="sponsored noreferrer"><span>{item.number}</span><div><b>{t(`affiliate.${item.key}`)}</b><small>{t(`affiliate.${item.key}Body`)}</small></div><em>{t("affiliate.browse")} →</em></a>)}</div>
+  </aside>;
+}
+
+export function AmazonWorkbenchRecommendation() {
+  const { t } = useI18n();
+  return <aside className="affiliate-workbench" aria-label={t("affiliate.shelf")}>
+    <span>{t("affiliate.label")}</span>
+    <b>{t("affiliate.title")}</b>
+    <div>
+      <a href={amazonSearch("books on writing fiction")} target="_blank" rel="sponsored noreferrer">{t("affiliate.craft")} ↗</a>
+      <a href={amazonSearch("editing style guides for writers")} target="_blank" rel="sponsored noreferrer">{t("affiliate.editing")} ↗</a>
+    </div>
+    <small>{t("affiliate.paidLink")} · As an Amazon Associate I earn from qualifying purchases.</small>
   </aside>;
 }
 

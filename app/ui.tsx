@@ -11,7 +11,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
 
 export function SiteHeader({ user }: { user: ChatGPTUser | null }) {
   const { t } = useI18n();
-  return <header className="site-header"><div className="wrap header-inner"><Brand /><nav aria-label="Primary navigation"><Link href="/#workflow">{t("nav.features")}</Link><Link href="/library">{t("nav.library")}</Link><Link href="/about">{t("nav.about")}</Link></nav><div className="header-actions"><LanguageSwitcher compact />{user ? <><Link className="text-user" href="/studio">{user.displayName}</Link><Link className="button small quiet" href={chatGPTSignOutPath("/")}>{t("auth.logout")}</Link></> : <><Link className="login-link" href={chatGPTSignInPath("/studio")}>{t("auth.login")}</Link><Link className="button small primary" href={chatGPTSignInPath("/studio")}>{t("auth.start")}</Link></>}</div></div></header>;
+  return <header className="site-header"><div className="wrap header-inner"><Brand /><nav aria-label="Primary navigation"><Link href="/#workflow">{t("nav.features")}</Link><Link className="sponsored-nav" href="/#writers-shelf">{t("affiliate.shelf")}<small>{t("affiliate.paidLink")}</small></Link><Link href="/library">{t("nav.library")}</Link><Link href="/about">{t("nav.about")}</Link></nav><div className="header-actions"><LanguageSwitcher compact />{user ? <><Link className="text-user" href="/studio">{user.displayName}</Link><Link className="button small quiet" href={chatGPTSignOutPath("/")}>{t("auth.logout")}</Link></> : <><Link className="login-link" href={chatGPTSignInPath("/studio")}>{t("auth.login")}</Link><Link className="button small primary" href={chatGPTSignInPath("/studio")}>{t("auth.start")}</Link></>}</div></div></header>;
 }
 
 export function SiteFooter() {
