@@ -116,6 +116,14 @@ button { cursor: pointer; }
 .affiliate-shelf h2 { margin: 8px 0 5px; font: 500 27px Georgia,"Noto Serif SC",serif; }
 .affiliate-shelf header p { margin: 0; color: #746c65; font-size: 13px; line-height: 1.65; }
 .affiliate-shelf header > small { max-width: 300px; color: #8b8279; font-size: 10px; line-height: 1.5; text-align: right; }
+.affiliate-featured { margin-bottom: 10px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid #334d43; border-radius: 10px; color: #fff; background: linear-gradient(120deg,#243c34,#3f5f53); box-shadow: 0 10px 22px rgba(35,57,49,.12); transition: transform .18s, box-shadow .18s; }
+.affiliate-featured:hover { transform: translateY(-2px); box-shadow: 0 14px 27px rgba(35,57,49,.18); }
+.affiliate-featured div { min-width: 0; }
+.affiliate-featured span,.affiliate-featured b,.affiliate-featured small { display: block; }
+.affiliate-featured span { color: #e5c585; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+.affiliate-featured b { margin-top: 5px; font: 500 20px Georgia,"Noto Serif SC",serif; }
+.affiliate-featured small { margin-top: 4px; color: #d6e0dc; font-size: 11px; line-height: 1.5; }
+.affiliate-featured em { flex: 0 0 auto; padding: 9px 12px; border-radius: 6px; color: #263e36; background: #f5e3bd; font-size: 10px; font-style: normal; font-weight: 800; }
 .affiliate-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; }
 .affiliate-grid > a { min-width: 0; min-height: 138px; padding: 15px; display: flex; flex-direction: column; border: 1px solid #e1d8cd; border-radius: 9px; background: rgba(255,255,255,.72); transition: transform .18s, border-color .18s, background .18s; }
 .affiliate-grid > a:hover { transform: translateY(-2px); border-color: #c59484; background: #fff; }
@@ -130,6 +138,9 @@ button { cursor: pointer; }
 .affiliate-workbench { margin: 8px 10px 0; padding: 11px; border: 1px solid #dfd2bf; border-radius: 7px; background: linear-gradient(145deg,#fffaf1,#f3eadc); box-shadow: 0 5px 14px rgba(70,51,35,.05); }
 .affiliate-workbench > span { display: block; color: #a5543f; font-size: 7px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .affiliate-workbench > b { display: block; margin-top: 5px; font: 500 12px Georgia,"Noto Serif SC",serif; }
+.affiliate-workbench > .affiliate-workbench-featured { margin-top: 8px; padding: 7px 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-color: #365248; color: #fff; background: #365248; text-align: left; }
+.affiliate-workbench > .affiliate-workbench-featured strong { font-size: 9px; }
+.affiliate-workbench > .affiliate-workbench-featured small { margin: 0; color: #f3ddb0; font-size: 7px; }
 .affiliate-workbench > div { display: flex; gap: 5px; margin-top: 8px; }
 .affiliate-workbench a { flex: 1; padding: 6px; border: 1px solid #e4d8c7; border-radius: 5px; color: #944a38; background: rgba(255,255,255,.75); font-size: 8px; font-weight: 700; text-align: center; }
 .affiliate-workbench small { display: block; margin-top: 7px; color: #91867b; font-size: 6.5px; line-height: 1.4; }
@@ -245,6 +256,7 @@ button { cursor: pointer; }
   .affiliate-shelf { padding: 21px; }
   .affiliate-shelf > header { align-items: flex-start; flex-direction: column; gap: 10px; }
   .affiliate-shelf header > small { text-align: left; }
+  .affiliate-featured { align-items: flex-start; flex-direction: column; gap: 13px; }
   .affiliate-grid { grid-template-columns: 1fr; }
   .feature-card.featured { min-height: 560px; }
   .cta { margin-block: 50px; padding: 38px 27px; align-items: flex-start; flex-direction: column; }

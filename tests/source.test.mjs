@@ -99,7 +99,7 @@ test("book export offers Word, print/PDF, Markdown, backup, and reader-facing op
   assert.match(printActions, /window\.print/);
 });
 
-test("Amazon recommendations are contextual, disclosed, and use the configured associate tag", async () => {
+test("Writer recommendations are contextual, disclosed, and use configured affiliate links", async () => {
   const [component, home, studio, workbench, footer, about, i18n] = await Promise.all([
     read("app/amazon-recommendations.tsx"),
     read("app/page.tsx"),
@@ -110,8 +110,10 @@ test("Amazon recommendations are contextual, disclosed, and use the configured a
     read("lib/i18n.ts"),
   ]);
   assert.match(component, /storystudio00-20/);
+  assert.match(component, /https:\/\/www\.sudowrite\.com\/\?via=xiangyu/);
   assert.match(component, /rel="sponsored noreferrer"/);
-  assert.match(component, /affiliate\.paidLink/);
+  assert.match(component, /affiliate\.commissionDisclosure/);
+  assert.match(component, /affiliate\.trySudowrite/);
   assert.match(component, /As an Amazon Associate I earn from qualifying purchases\./);
   assert.match(home, /AmazonRecommendations/);
   assert.match(studio, /AmazonRecommendations compact/);
@@ -121,5 +123,6 @@ test("Amazon recommendations are contextual, disclosed, and use the configured a
   assert.match(footer, /As an Amazon Associate I earn from qualifying purchases\./);
   assert.match(about, /affiliate\.aboutTitle/);
   assert.match(i18n, /affiliate\.craft/);
-  assert.match(i18n, /Paid links/);
+  assert.match(i18n, /FICTION AI PARTNER/);
+  assert.match(i18n, /Story Studio may earn a commission at no extra cost to you/);
 });
