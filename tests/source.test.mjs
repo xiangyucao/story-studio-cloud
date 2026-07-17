@@ -61,3 +61,20 @@ test("structured data has ownership and private-by-default fields", async () => 
   assert.match(studioCss, /Comfortable typography for high-resolution displays/);
   assert.match(studioCss, /\.manuscript-editor \{ font-size: 19px/);
 });
+
+test("story memory JSON is portable, previewed, and explicitly applied", async () => {
+  const [route, workbench] = await Promise.all([
+    read("app/api/works/[id]/context-json/route.ts"),
+    read("app/studio/works/[id]/workbench.tsx"),
+  ]);
+  assert.match(route, /source: names\.get/);
+  assert.match(route, /target: names\.get/);
+  assert.match(route, /logicChains/);
+  assert.match(route, /mode === "preview"/);
+  assert.match(route, /confirmReplace !== true/);
+  assert.match(route, /expectedUpdatedAt !== auth\.work\.updatedAt/);
+  assert.match(route, /db\.batch/);
+  assert.match(workbench, /memory\.jsonImport/);
+  assert.match(workbench, /memory\.jsonExport/);
+  assert.match(workbench, /memoryJsonExample/);
+});

@@ -76,6 +76,20 @@ The core writing instructions follow the work's writing language. Copy the promp
 
 The site does not send the prompt in the background and does not consume model credits on behalf of the user.
 
+### Portable story-memory JSON
+
+The story-memory manager can export and import one portable JSON document containing:
+
+- `characters`
+- `relationships`
+- `world`
+- `timeline`
+- `logicChains`
+
+Relationships refer to character names through `source` and `target`, not internal database IDs, so the file can be given directly to ChatGPT, Gemini, or a local model. An imported document may contain all five arrays or only selected categories. Every included category is treated as a complete replacement; omitted categories remain unchanged.
+
+Before applying an import, the studio validates references and duplicates and shows counts and item-level labels for additions, updates, unchanged records, and deletions. Applying the same exported file twice produces no changes on the second import. The replacement runs as one D1 batch, and the studio rejects an apply request if the work changed after its preview.
+
 ### 4. Connect your own Codex with MCP
 
 Create an access token on the **Connections** page. The remote MCP endpoint is:
