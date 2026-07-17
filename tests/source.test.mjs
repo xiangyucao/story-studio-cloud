@@ -111,6 +111,7 @@ test("Writer recommendations are contextual, disclosed, and use configured affil
   ]);
   assert.match(component, /storystudio00-20/);
   assert.match(component, /https:\/\/www\.sudowrite\.com\/\?via=xiangyu/);
+  assert.match(component, /https:\/\/goto\.walmart\.com\/c\/1911899\/565706\/9383/);
   assert.match(component, /rel="sponsored noreferrer"/);
   assert.match(component, /affiliate\.commissionDisclosure/);
   assert.match(component, /affiliate\.trySudowrite/);
@@ -124,5 +125,6 @@ test("Writer recommendations are contextual, disclosed, and use configured affil
   assert.match(about, /affiliate\.aboutTitle/);
   assert.match(i18n, /affiliate\.craft/);
   assert.match(i18n, /FICTION AI PARTNER/);
+  assert.match(i18n, /WRITING SUPPLIES/);
   assert.match(i18n, /Story Studio may earn a commission at no extra cost to you/);
 });
