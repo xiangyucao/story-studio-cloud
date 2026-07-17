@@ -203,3 +203,44 @@
 @media (min-width: 1101px) {
   .workbench-grid { grid-template-columns: 282px minmax(460px,1fr) 330px; }
 }
+
+/* Work export */
+.export-backdrop { z-index: 62; }
+.export-modal { width: min(790px,100%); padding: 32px 38px; }
+.export-script { margin-top: 18px; padding: 14px 16px; border: 1px solid #ded5ca; border-radius: 9px; background: #f8f4ee; }
+.export-script > b { display: block; margin-bottom: 9px; font-size: 14px; }
+.export-script > div { display: inline-flex; padding: 3px; border-radius: 7px; background: #eae4dc; }
+.export-script button { padding: 8px 13px; border: 0; border-radius: 5px; color: #786f67; background: transparent; font-size: 13px; }
+.export-script button.active { color: #fff; background: #34564b; }
+.export-script small { display: block; margin-top: 8px; color: #847b73; font-size: 12px; }
+.export-volume-picker { margin-top: 18px; border: 1px solid #ded5ca; border-radius: 9px; overflow: hidden; }
+.export-volume-picker > header { padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; background: #f5f1eb; }
+.export-volume-picker > header b { font-size: 14px; }
+.export-volume-picker > header button { border: 0; color: #a64a38; background: transparent; font-size: 13px; }
+.export-volume-picker > div { max-height: 230px; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; }
+.export-volume-picker label { min-width: 0; padding: 13px 15px; display: grid; grid-template-columns: 20px 1fr; align-items: flex-start; gap: 9px; border-top: 1px solid #e7dfd5; }
+.export-volume-picker label:nth-child(odd) { border-right: 1px solid #e7dfd5; }
+.export-volume-picker input, .export-checks input { width: 16px; height: 16px; margin: 2px 0; accent-color: #b95038; }
+.export-volume-picker label span, .export-volume-picker label b, .export-volume-picker label small { min-width: 0; display: block; }
+.export-volume-picker label b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #3f3935; font-size: 14px; }
+.export-volume-picker label small { margin-top: 4px; color: #8a8178; font-size: 12px; }
+.export-checks { margin-top: 14px; display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+.export-checks label { padding: 12px; display: grid; grid-template-columns: 19px 1fr; align-items: flex-start; gap: 8px; border: 1px solid #e0d8ce; border-radius: 8px; background: #fff; }
+.export-checks b, .export-checks small { display: block; }
+.export-checks b { color: #443e39; font-size: 14px; }
+.export-checks small { margin-top: 4px; color: #887f77; font-size: 12px; line-height: 1.45; }
+.export-formats { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.export-formats > a { min-width: 0; padding: 13px; display: grid; grid-template-columns: 43px 1fr 12px; align-items: center; gap: 11px; border: 1px solid #ded5ca; border-radius: 9px; color: #403a36; background: #fff; text-decoration: none; }
+.export-formats > a:hover { border-color: #c99689; background: #fffaf7; }
+.export-formats > a.disabled { pointer-events: none; opacity: .45; }
+.export-formats i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; color: #fff; background: #35584c; font: 700 12px Arial,sans-serif; }
+.export-formats span, .export-formats b, .export-formats small { min-width: 0; display: block; }
+.export-formats b { font-size: 14px; }
+.export-formats small { margin-top: 4px; color: #857d75; font-size: 12px; line-height: 1.4; }
+.export-formats em { color: #a64b38; font: 22px Georgia,serif; }
+.export-note { margin-top: 15px; color: #837a72; font-size: 12px; }
+@media(max-width:760px) {
+  .export-modal { padding: 28px 18px; }
+  .export-volume-picker > div, .export-checks, .export-formats { grid-template-columns: 1fr; }
+  .export-volume-picker label:nth-child(odd) { border-right: 0; }
+}

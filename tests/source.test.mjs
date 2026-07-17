@@ -78,3 +78,23 @@ test("story memory JSON is portable, previewed, and explicitly applied", async (
   assert.match(workbench, /memory\.jsonExport/);
   assert.match(workbench, /memoryJsonExample/);
 });
+
+test("book export offers Word, print/PDF, Markdown, backup, and reader-facing options", async () => {
+  const [route, helper, workbench, printPage, printActions] = await Promise.all([
+    read("app/api/works/[id]/export/route.ts"),
+    read("lib/book-export.ts"),
+    read("app/studio/works/[id]/workbench.tsx"),
+    read("app/studio/works/[id]/print/page.tsx"),
+    read("app/studio/works/[id]/print/print-actions.tsx"),
+  ]);
+  assert.match(route, /application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document/);
+  assert.match(route, /safeExportName/);
+  assert.match(helper, /InternalHyperlink/);
+  assert.match(helper, /stripLeadingChapterHeading/);
+  assert.match(workbench, /exportIncludeToc/);
+  assert.match(workbench, /exportIncludeVolumeSynopses/);
+  assert.match(workbench, /format === "print"/);
+  assert.match(workbench, /backup/);
+  assert.match(printPage, /PrintActions/);
+  assert.match(printActions, /window\.print/);
+});
