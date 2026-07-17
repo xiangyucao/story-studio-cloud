@@ -1,73 +1,90 @@
 # Story Studio Cloud
 
-Story Studio Cloud 是一个面向朋友和小型写作社群的免费、开源 AI 小说管理工具。它负责管理作品结构与上下文，不提供或转售 AI 模型。
+Story Studio Cloud is a free, open-source workspace for planning, managing, writing, and sharing long-form fiction with AI assistance. It keeps the story structure and manuscript organized while leaving the choice of AI model—and the related cost—with each author.
 
-作者可以在同一个工作台里维护：
+**Live site:** [story-studio-cloud.xiangyucao.chatgpt.site](https://story-studio-cloud.xiangyucao.chatgpt.site)
 
-- 作品基石、类型、语言、风格指南和参考范本
-- 卷、章、章节大纲、建议字数和正文版本
-- 人物、人物关系、世界观、硬设定、时间线和逻辑链
-- 外部模型提示词，以及自己的 Codex 可调用的远程 MCP 工具
-- 私人草稿、公开作品主页和逐章发布状态
-- 本地 Story Studio 完整备份导入、云端完整 JSON 导出与再次导入
+## Prefer a local app?
 
-网站首次访问默认使用英文界面。页头和写作工作台都可以切换 English、简体中文、繁體中文、Español、Deutsch、Français、日本語、Português 和 한국어；选择会保存在浏览器中。界面语言与每本作品的“写作语言”彼此独立，后者仍专门控制 AI 写作提示词。
+The original [Story Studio desktop edition](https://github.com/xiangyucao/story-studio) is also free and open source. It runs on your own computer, stores projects locally with SQLite, and can connect to local language models as well as external AI tools.
 
-## 设计边界
+Choose the desktop edition when local-first storage, offline work, or a local model is important. Choose Story Studio Cloud when you want account-based private drafts, browser access, public reading pages, and remote MCP access for your own Codex.
 
-这是“写作架构与文稿管理工具”，不是模型服务：
+## What authors can manage
 
-1. 站点不持有平台统一的 OpenAI、Gemini 或其他模型 API Key。
-2. 外部模型模式只在浏览器中整理提示词，由作者自己复制给模型。
-3. MCP 使用作者自己的 Codex 和自己的额度；服务端只读取上下文和保存草稿。
-4. 作品默认私密。作品和章节都明确发布后，才会出现在小说广场。
-5. MCP 不能删除作品，也不能发布章节；令牌可随时撤销。
+- A work's premise, genre, writing language, style guide, and reference excerpt
+- Volumes, chapters, outlines, target lengths, manuscript text, and revisions
+- Characters, relationships, worldbuilding, hard settings, timelines, and logic chains
+- Complete prompts for external models and remote MCP tools for the author's own Codex
+- Private drafts, public work pages, and chapter-level publishing controls
+- Full JSON backup import and export
 
-详细免责声明见站内 `/about` 页面。
+## Interface languages
 
-## 核心流程
+The interface defaults to English for a new visitor. The language selector supports:
 
-### 1. 登录与建立作品
+- English
+- Simplified Chinese and Traditional Chinese
+- Spanish, German, and French
+- Japanese, Portuguese, and Korean
 
-作者通过 ChatGPT 登录进入 `/studio`。新建作品时只需要填写作品名、类型、写作语言和一句话构想，系统会自动建立第一卷与第一章，不会调用 AI。
+The interface language is separate from each work's **writing language**. Changing the interface does not change the language used for AI writing instructions.
 
-也可以选择“导入本地完整备份”，导入旧版 Story Studio 导出的 `story-studio-project-backup` JSON。导入总是建立新副本，不覆盖现有作品，且默认不公开。
+## Product boundaries
 
-### 2. 先写大纲，再写正文
+Story Studio Cloud is a story-architecture and manuscript-management tool, not a model provider:
 
-左侧故事树按卷组织章节。每一章保存：
+1. The site does not hold a shared OpenAI, Gemini, or other model API key.
+2. External-model mode assembles a prompt in the browser. The author decides where to paste it.
+3. MCP uses the author's own Codex account and allowance. The server only reads authorized story context and saves private drafts.
+4. Works are private by default. A work and its individual chapters must both be explicitly published before readers can see them.
+5. MCP cannot delete works or publish chapters, and access tokens can be revoked at any time.
 
-- 标题与大纲
-- 建议字数
-- 正文
-- 修订版本号
-- 是否公开
+See `/about` on the live site for the full disclaimer.
 
-修改大纲或正文后点击“保存章节”。工作台会更新章节版本号，MCP 写回时也会检查版本，避免覆盖作者刚刚完成的修改。
+## Core workflow
 
-### 3. 让外部 AI 写作
+### 1. Sign in and create a work
 
-在章节编辑器点击“按大纲生成 AI 提示词”。系统会组合：
+Authors sign in with ChatGPT and enter the private studio. Creating a work only requires a title, genre, writing language, and one-sentence premise. Story Studio prepares the first volume and chapter without calling an AI model.
 
-- 作品类型、核心构想、风格指南与参考范本
-- 当前卷介绍、章节标题、大纲与建议字数
-- 人物、目标、个性和人物关系
-- 世界观与硬设定
-- 时间线和逻辑链
+A complete backup exported by the local Story Studio app can also be imported. Every import creates a new private copy and does not overwrite an existing work.
 
-提示词会根据作品语言使用中文、英文、德语、西班牙语、法语、日语、葡萄牙语或韩语的核心指令。复制到 ChatGPT、Gemini、本地模型等任意工具，把结果贴回正文即可。
+### 2. Outline before drafting
 
-站点不会在后台发送提示词，因此不会消耗站点所有者的模型额度。
+The manuscript tree groups chapters under collapsible volumes. Each chapter stores:
 
-### 4. 用自己的 Codex 连接
+- Title and chapter outline
+- Target length
+- Manuscript text
+- Revision number
+- Publishing status
 
-打开“连接”页面，生成一个访问令牌。远程 MCP 入口为：
+Saving an edited chapter increments its revision. MCP writes use optimistic revision checks so a remote edit cannot silently overwrite a newer browser edit.
+
+### 3. Write with any external AI
+
+Click **Build AI prompt from outline** in the chapter editor. Story Studio composes:
+
+- Genre, premise, style guide, and reference excerpt
+- Current volume synopsis, chapter title, outline, and target length
+- Characters, goals, personalities, and relationships
+- Worldbuilding and hard settings
+- Timeline events and logic chains
+
+The core writing instructions follow the work's writing language. Copy the prompt to ChatGPT, Gemini, a local model, or another long-context tool, then paste the resulting prose back into the manuscript.
+
+The site does not send the prompt in the background and does not consume model credits on behalf of the user.
+
+### 4. Connect your own Codex with MCP
+
+Create an access token on the **Connections** page. The remote MCP endpoint is:
 
 ```text
-https://你的域名/api/mcp
+https://your-domain.example/api/mcp
 ```
 
-使用 Bearer token 认证。当前提供：
+It uses Bearer-token authentication and currently exposes:
 
 - `story_list_works`
 - `story_list_outline`
@@ -75,17 +92,17 @@ https://你的域名/api/mcp
 - `story_get_chapter`
 - `story_save_chapter`
 
-`story_save_chapter` 必须带刚刚读取的 `expectedRevision`。版本不一致时会拒绝覆盖。令牌明文只显示一次，数据库只保存 SHA-256 哈希。
+`story_save_chapter` requires the most recently read `expectedRevision`. A version mismatch is rejected. The plaintext token is displayed once; only its SHA-256 hash is stored.
 
-### 5. 公开分享
+### 5. Share a finished story
 
-在作品设置里勾选“公开作品主页”，再逐章勾选“发布本章”。公开读者不需要登录，只会看到同时满足这两个条件的内容。
+Enable **Publish work page** in the work settings, then explicitly publish the chapters readers should see. Public readers do not need to sign in, and unpublished chapters remain private.
 
-小说广场没有评论、私信、付费或模型结算功能，第一版只做简单阅读与分享。
+The community library intentionally has no payments, model billing, private messaging, or comments in the current release.
 
-## 本地开发
+## Local development
 
-要求 Node.js 22.13 或更高版本。
+Requires Node.js 22.13 or later.
 
 ```bash
 npm ci
@@ -93,27 +110,27 @@ npm run db:generate
 npm run dev
 ```
 
-打开 `http://localhost:3000`。
+Then open `http://localhost:3000`.
 
-项目通过 `.openai/hosting.json` 声明：
+The `.openai/hosting.json` file declares:
 
-- D1 绑定 `DB`：作品、章节、设定和令牌元数据
-- R2 绑定 `ASSETS_BUCKET`：后续封面与插画文件
+- D1 binding `DB` for works, chapters, context, and token metadata
+- R2 binding `ASSETS_BUCKET` for future cover and illustration files
 
-本地未经过 Sites 身份网关时，公开首页仍能正常预览；`/studio` 需要部署环境提供 Sign in with ChatGPT 身份头。
+The public pages can be previewed locally. The private `/studio` routes require the Sign in with ChatGPT identity headers supplied by the deployed Sites environment.
 
-## 验证
+## Validation
 
 ```bash
 npm run lint
 npm test
 ```
 
-`npm test` 会执行生产构建，并检查公开说明、默认私密、令牌哈希和 MCP 版本保护等关键安全约束。浏览器预览用于补充验证实际渲染结果。
+The test command runs a production build and checks the model-service boundary, English default interface, private-by-default data model, token hashing, ownership isolation, and MCP revision protection.
 
-## 数据结构
+## Data model
 
-Drizzle schema 位于 `db/schema.ts`，包括：
+The Drizzle schema in `db/schema.ts` contains:
 
 - `works`
 - `volumes`
@@ -125,12 +142,12 @@ Drizzle schema 位于 `db/schema.ts`，包括：
 - `logic_links`
 - `api_tokens`
 
-数据库迁移保存在 `drizzle/`。
+Database migrations live in `drizzle/`.
 
-## 当前状态
+## Contact and contributions
 
-这是云端分支的第一版 MVP。下一步适合补充封面与插画上传、DOCX/PDF 导出，以及更多协作和出版能力。核心身份隔离、结构化写作、多语言界面与提示词、外部模型提示词、公开阅读、备份迁移和 MCP 草稿读写已经建立。
+For questions, bug reports, feature ideas, security concerns, or public-content reports, please [open a GitHub issue](https://github.com/xiangyucao/story-studio-cloud/issues). Pull requests are welcome.
 
 ## License
 
-MIT。详见 `LICENSE`。
+MIT. See [LICENSE](LICENSE).

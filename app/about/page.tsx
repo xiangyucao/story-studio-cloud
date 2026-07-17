@@ -14,6 +14,8 @@ export default async function AboutPage() {
     <section><h2>{t("about.contentTitle")}</h2><p>{t("about.contentBody")}</p></section>
     <section><h2>{t("about.warrantyTitle")}</h2><p>{t("about.warrantyBody")}</p></section>
     <section id="privacy"><h2>{t("about.privacyTitle")}</h2><ul><li>{t("about.private1")}</li><li>{t("about.private2")}</li><li>{t("about.private3")}</li><li>{t("about.private4")}</li></ul></section>
+    <section><h2>{t("about.localTitle")}</h2><p>{t("about.localBody")}</p><p><a className="text-link" href="https://github.com/xiangyucao/story-studio" target="_blank" rel="noreferrer">{t("about.localLink")}</a></p></section>
     <section><h2>{t("about.reportTitle")}</h2><p>{t("about.reportBody")}</p></section>
+    <section><h2>{t("about.contactTitle")}</h2><p>{t("about.contactBody")}</p><p><a className="text-link" href="https://github.com/xiangyucao/story-studio-cloud/issues" target="_blank" rel="noreferrer">{t("about.contactLink")}</a></p></section>
   </div></main><SiteFooter /></div>;
 }
