@@ -5,7 +5,10 @@ import { getUiLocale } from "@/lib/i18n-server";
 import { translate } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "About & disclaimer" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getUiLocale();
+  return { title: translate(locale, "about.kicker") };
+}
 
 export default async function AboutPage() {
   const [user, locale] = await Promise.all([getChatGPTUser(), getUiLocale()]); const t=(key:string)=>translate(locale,key);
@@ -14,7 +17,7 @@ export default async function AboutPage() {
     <section><h2>{t("about.contentTitle")}</h2><p>{t("about.contentBody")}</p></section>
     <section><h2>{t("about.warrantyTitle")}</h2><p>{t("about.warrantyBody")}</p></section>
     <section id="privacy"><h2>{t("about.privacyTitle")}</h2><ul><li>{t("about.private1")}</li><li>{t("about.private2")}</li><li>{t("about.private3")}</li><li>{t("about.private4")}</li></ul></section>
-    <section><h2>{t("affiliate.aboutTitle")}</h2><p>{t("affiliate.aboutBody")}</p><p><strong>As an Amazon Associate I earn from qualifying purchases.</strong></p></section>
+    <section><h2>{t("affiliate.aboutTitle")}</h2><p>{t("affiliate.aboutBody")}</p><p><strong>{t("affiliate.amazonAssociate")}</strong></p></section>
     <section><h2>{t("about.localTitle")}</h2><p>{t("about.localBody")}</p><p><a className="text-link" href="https://github.com/xiangyucao/story-studio" target="_blank" rel="noreferrer">{t("about.localLink")}</a></p></section>
     <section><h2>{t("about.reportTitle")}</h2><p>{t("about.reportBody")}</p></section>
     <section className="community-section"><h2>{t("about.contactTitle")}</h2><p>{t("about.contactBody")}</p><div className="community-links">

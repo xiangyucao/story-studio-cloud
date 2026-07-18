@@ -27,6 +27,16 @@ test("public landing page explains the product and its model boundary", async ()
   assert.match(readme, /original \[Story Studio desktop edition\]/);
 });
 
+test("About page and shared footer contain no hard-coded English disclosure", async () => {
+  const [about, ui] = await Promise.all([read("app/about/page.tsx"), read("app/ui.tsx")]);
+  assert.match(about, /affiliate\.amazonAssociate/);
+  assert.match(about, /generateMetadata/);
+  assert.match(ui, /footer\.made/);
+  assert.match(ui, /nav\.primary/);
+  assert.doesNotMatch(about, />As an Amazon Associate/);
+  assert.doesNotMatch(ui, />As an Amazon Associate/);
+});
+
 test("MCP remains draft-only and uses optimistic chapter revisions", async () => {
   const mcp = await read("app/api/mcp/route.ts");
   assert.match(mcp, /story_get_context/);
@@ -147,7 +157,8 @@ test("Writer recommendations are contextual, disclosed, and use configured affil
   assert.match(workbench, /AmazonWorkbenchRecommendation/);
   assert.match(component, /id=\{compact \? "studio-writers-shelf" : "writers-shelf"\}/);
   assert.match(footer, /href="\/#writers-shelf"/);
-  assert.match(footer, /As an Amazon Associate I earn from qualifying purchases\./);
+  assert.match(footer, /affiliate\.amazonAssociate/);
+  assert.match(i18n, /As an Amazon Associate I earn from qualifying purchases\./);
   assert.match(about, /affiliate\.aboutTitle/);
   assert.match(i18n, /affiliate\.craft/);
   assert.match(i18n, /FICTION AI PARTNER/);
