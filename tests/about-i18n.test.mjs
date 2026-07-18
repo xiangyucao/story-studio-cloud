@@ -20,11 +20,12 @@ test("the complete About page follows every supported interface language", async
     "about.contactTitle", "about.contactBody", "about.discussionTitle", "about.discussionBody",
     "about.issueTitle", "about.issueBody", "about.securityTitle", "about.securityBody",
     "affiliate.aboutTitle", "affiliate.aboutBody", "affiliate.amazonAssociate", "footer.made", "nav.primary",
+    "connections.setupPromptTitle", "connections.setupPromptBody", "connections.setupPromptSecurity", "connections.copySetupPrompt", "connections.setupPromptCopied",
   ];
   for (const { code } of supportedLocales) {
     for (const key of keys) assert.notEqual(translate(code, key), key, `${code} is missing ${key}`);
     if (code !== "en") {
-      for (const key of ["about.title", "about.toolTitle", "about.contentTitle", "about.warrantyTitle", "about.privacyTitle", "about.reportTitle", "affiliate.amazonAssociate", "footer.made"]) {
+      for (const key of ["about.title", "about.toolTitle", "about.contentTitle", "about.warrantyTitle", "about.privacyTitle", "about.reportTitle", "affiliate.amazonAssociate", "footer.made", "connections.copySetupPrompt"]) {
         assert.notEqual(translate(code, key), translate("en", key), `${code} still falls back to English for ${key}`);
       }
     }

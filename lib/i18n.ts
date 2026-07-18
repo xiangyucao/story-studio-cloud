@@ -237,6 +237,18 @@ const extendedOverrides: Partial<Record<UiLocale, Record<string, string>>> = {
   }
 };
 
+const mcpSetupUi: Partial<Record<UiLocale, Record<string, string>>> = {
+  en: { "connections.copied":"Copied","connections.setupPromptTitle":"Set up Codex in one step","connections.setupPromptBody":"Copy an English instruction containing this endpoint and token. Paste it into your own Codex so it can configure and verify the connection.","connections.setupPromptSecurity":"The copied text contains your token. Paste it only into your own trusted Codex task.","connections.copySetupPrompt":"Copy Codex setup prompt","connections.setupPromptCopied":"Codex setup prompt copied" },
+  "zh-CN": { "connections.copied":"已复制","connections.setupPromptTitle":"一步连接 Codex","connections.setupPromptBody":"复制一段包含此地址和令牌的英文指令，粘贴到你自己的 Codex，让它完成配置与连接验证。","connections.setupPromptSecurity":"复制内容包含你的令牌，只能粘贴到你本人可信的 Codex 任务中。","connections.copySetupPrompt":"复制 Codex 接入指令","connections.setupPromptCopied":"Codex 接入指令已复制" },
+  "zh-TW": { "connections.copied":"已複製","connections.setupPromptTitle":"一步連接 Codex","connections.setupPromptBody":"複製一段包含此位址和權杖的英文指令，貼到你自己的 Codex，讓它完成設定與連線驗證。","connections.setupPromptSecurity":"複製內容包含你的權杖，只能貼到你本人可信的 Codex 任務中。","connections.copySetupPrompt":"複製 Codex 接入指令","connections.setupPromptCopied":"Codex 接入指令已複製" },
+  es: { "connections.copied":"Copiado","connections.setupPromptTitle":"Configura Codex en un paso","connections.setupPromptBody":"Copia una instrucción en inglés con esta dirección y token. Pégala en tu propio Codex para que configure y verifique la conexión.","connections.setupPromptSecurity":"El texto copiado contiene tu token. Pégalo solo en una tarea de Codex de confianza.","connections.copySetupPrompt":"Copiar instrucciones para Codex","connections.setupPromptCopied":"Instrucciones para Codex copiadas" },
+  de: { "connections.copied":"Kopiert","connections.setupPromptTitle":"Codex in einem Schritt einrichten","connections.setupPromptBody":"Kopiere eine englische Anweisung mit dieser Adresse und dem Token in dein eigenes Codex. Codex richtet die Verbindung ein und prüft sie.","connections.setupPromptSecurity":"Der kopierte Text enthält dein Token. Füge ihn nur in eine vertrauenswürdige eigene Codex-Aufgabe ein.","connections.copySetupPrompt":"Codex-Einrichtung kopieren","connections.setupPromptCopied":"Codex-Einrichtung kopiert" },
+  fr: { "connections.copied":"Copié","connections.setupPromptTitle":"Configurer Codex en une étape","connections.setupPromptBody":"Copiez une instruction en anglais contenant cette adresse et ce jeton, puis collez-la dans votre propre Codex pour configurer et vérifier la connexion.","connections.setupPromptSecurity":"Le texte copié contient votre jeton. Collez-le uniquement dans une tâche Codex personnelle et fiable.","connections.copySetupPrompt":"Copier la configuration Codex","connections.setupPromptCopied":"Configuration Codex copiée" },
+  ja: { "connections.copied":"コピー済み","connections.setupPromptTitle":"Codex をワンステップで接続","connections.setupPromptBody":"この接続先とトークンを含む英語の指示をコピーし、自分の Codex に貼り付けると、設定と接続確認を任せられます。","connections.setupPromptSecurity":"コピー内容にはトークンが含まれます。自分が信頼する Codex タスクだけに貼り付けてください。","connections.copySetupPrompt":"Codex 接続指示をコピー","connections.setupPromptCopied":"Codex 接続指示をコピーしました" },
+  pt: { "connections.copied":"Copiado","connections.setupPromptTitle":"Configure o Codex em uma etapa","connections.setupPromptBody":"Copie uma instrução em inglês com este endereço e token. Cole no seu próprio Codex para configurar e verificar a conexão.","connections.setupPromptSecurity":"O texto copiado contém seu token. Cole apenas em uma tarefa confiável do seu próprio Codex.","connections.copySetupPrompt":"Copiar configuração do Codex","connections.setupPromptCopied":"Configuração do Codex copiada" },
+  ko: { "connections.copied":"복사됨","connections.setupPromptTitle":"한 번에 Codex 연결","connections.setupPromptBody":"이 주소와 토큰이 포함된 영어 지시문을 복사해 자신의 Codex에 붙여 넣으면 설정과 연결 확인을 맡길 수 있습니다.","connections.setupPromptSecurity":"복사 내용에 토큰이 포함됩니다. 본인이 신뢰하는 Codex 작업에만 붙여 넣으세요.","connections.copySetupPrompt":"Codex 연결 지시문 복사","connections.setupPromptCopied":"Codex 연결 지시문 복사됨" },
+};
+
 const aboutPageUi: Partial<Record<UiLocale, Record<string, string>>> = {
   en: {
     "nav.primary":"Primary navigation","affiliate.amazonAssociate":"As an Amazon Associate I earn from qualifying purchases.","footer.made":"Made for stories, not for lock-in."
@@ -268,7 +280,7 @@ const aboutPageUi: Partial<Record<UiLocale, Record<string, string>>> = {
 };
 
 export function translate(locale: UiLocale, key: string, vars?: TranslationVars): string {
-  let value = aboutPageUi[locale]?.[key] ?? chapterPromptUi[locale]?.[key] ?? extendedOverrides[locale]?.[key] ?? affiliateToolUi[locale]?.[key] ?? affiliateShelfUi[locale]?.[key] ?? affiliateUi[locale]?.[key] ?? exportUi[locale]?.[key] ?? overrides[locale]?.[key] ?? en[key] ?? key;
+  let value = mcpSetupUi[locale]?.[key] ?? aboutPageUi[locale]?.[key] ?? chapterPromptUi[locale]?.[key] ?? extendedOverrides[locale]?.[key] ?? affiliateToolUi[locale]?.[key] ?? affiliateShelfUi[locale]?.[key] ?? affiliateUi[locale]?.[key] ?? exportUi[locale]?.[key] ?? overrides[locale]?.[key] ?? en[key] ?? key;
   if (vars) for (const [name, replacement] of Object.entries(vars)) value = value.replaceAll(`{${name}}`, String(replacement));
   return value;
 }
