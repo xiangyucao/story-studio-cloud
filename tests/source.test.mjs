@@ -57,8 +57,10 @@ test("MCP remains draft-only and uses optimistic chapter revisions", async () =>
 });
 
 test("new MCP tokens offer a one-click English Codex setup prompt", async () => {
-  const [settings, promptBuilder] = await Promise.all([
+  const [settings, settingsPage, tokenRoute, promptBuilder] = await Promise.all([
     read("app/studio/settings/settings-client.tsx"),
+    read("app/studio/settings/page.tsx"),
+    read("app/api/tokens/route.ts"),
     read("lib/mcp-setup-prompt.ts"),
   ]);
   assert.match(settings, /connections\.copySetupPrompt/);
@@ -66,6 +68,10 @@ test("new MCP tokens offer a one-click English Codex setup prompt", async () => 
   assert.match(settings, /navigator\.clipboard\.writeText/);
   assert.match(promptBuilder, /Please configure the following remote Streamable HTTP MCP server/);
   assert.match(promptBuilder, /Do not modify, delete, or publish any Story Studio data/);
+  assert.match(settings, /items\.filter\(\(item\) => item\.id !== id\)/);
+  assert.match(settingsPage, /isNull\(apiTokens\.revokedAt\)/);
+  assert.match(tokenRoute, /delete\(apiTokens\)/);
+  assert.doesNotMatch(tokenRoute, /set\(\{ revokedAt:/);
 });
 
 test("chapter editor offers separate create and suggestion-based revision prompts", async () => {

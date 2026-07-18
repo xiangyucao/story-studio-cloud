@@ -8,6 +8,13 @@
       "when": 1784266151555,
       "tag": "0000_certain_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784336076003,
+      "tag": "0001_cleanup_revoked_tokens",
+      "breakpoints": true
     }
   ]
 }
