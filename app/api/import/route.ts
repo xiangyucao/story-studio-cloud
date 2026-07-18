@@ -2,6 +2,7 @@ import { getDb } from "@/db";
 import { chapters, characters, characterRelationships, logicLinks, timelineEvents, volumes, worldEntries, works } from "@/db/schema";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { createId, createSlug } from "@/lib/ids";
+import { normalizeWritingLanguage } from "@/lib/writing-languages";
 
 type LegacyBackup = {
   format: "story-studio-project-backup"; version: number;
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
   const backup = parsed;
   if (backup.format !== "story-studio-project-backup" || backup.version !== 1 || !backup.project?.title) return Response.json({ error: "请选择本地 Story Studio 导出的完整作品备份（版本 1）" }, { status: 400 });
   const now = new Date().toISOString(); const workId = createId("wrk"); const db = getDb();
-  await db.insert(works).values({ id: workId, ownerEmail: user.email, title: `${backup.project.title}（云端副本）`, slug: createSlug(backup.project.title), description: backup.project.premise || "", genre: backup.project.genre || "未分类", language: backup.project.writingLanguage || "zh-CN", premise: backup.project.premise || "", styleGuide: backup.project.styleGuide || "", referenceExcerpt: backup.project.referenceText || "", isPublished: false, createdAt: now, updatedAt: now });
+  await db.insert(works).values({ id: workId, ownerEmail: user.email, title: `${backup.project.title}（云端副本）`, slug: createSlug(backup.project.title), description: backup.project.premise || "", genre: backup.project.genre || "未分类", language: normalizeWritingLanguage(backup.project.writingLanguage, "zh-CN"), premise: backup.project.premise || "", styleGuide: backup.project.styleGuide || "", referenceExcerpt: backup.project.referenceText || "", isPublished: false, createdAt: now, updatedAt: now });
   const outline = backup.outline ?? [];
   const legacyVolumes = outline.filter((item) => item.type === "volume").sort((a,b) => (a.position ?? 0) - (b.position ?? 0));
   const volumeMap = new Map<string,string>();
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
 async function importCloudBackup(backup: CloudBackup, ownerEmail: string) {
   if (backup.version !== 1 || !backup.work?.title) return Response.json({ error: "云端备份版本无效" }, { status: 400 });
   const db=getDb(),now=new Date().toISOString(),workId=createId("wrk");
-  await db.insert(works).values({id:workId,ownerEmail,title:`${backup.work.title}（副本）`,slug:createSlug(backup.work.title),description:backup.work.description||"",genre:backup.work.genre||"未分类",language:backup.work.language||"zh-CN",premise:backup.work.premise||"",styleGuide:backup.work.styleGuide||"",referenceExcerpt:backup.work.referenceExcerpt||"",isPublished:false,createdAt:now,updatedAt:now});
+  await db.insert(works).values({id:workId,ownerEmail,title:`${backup.work.title}（副本）`,slug:createSlug(backup.work.title),description:backup.work.description||"",genre:backup.work.genre||"未分类",language:normalizeWritingLanguage(backup.work.language,"zh-CN"),premise:backup.work.premise||"",styleGuide:backup.work.styleGuide||"",referenceExcerpt:backup.work.referenceExcerpt||"",isPublished:false,createdAt:now,updatedAt:now});
   const volumeMap=new Map<string,string>();
   const sourceVolumes=(backup.volumes?.length?backup.volumes:[{id:"fallback",position:1,title:"第一卷",synopsis:""}]).sort((a,b)=>a.position-b.position);
   for(const item of sourceVolumes){const id=createId("vol");volumeMap.set(item.id,id);await db.insert(volumes).values({id,workId,position:item.position,title:item.title,synopsis:item.synopsis||"",createdAt:now,updatedAt:now});}

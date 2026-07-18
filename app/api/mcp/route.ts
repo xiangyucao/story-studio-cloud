@@ -14,6 +14,7 @@ import { ownerFromBearer, ownedWork } from "@/lib/authz";
 import { getWorkBundle } from "@/lib/queries";
 import { createId, createSlug } from "@/lib/ids";
 import { buildChapterPrompt, type ChapterPromptMode } from "@/lib/chapter-prompt";
+import { defaultOutlineTitles, parseWritingLanguage, writingLanguageCodes } from "@/lib/writing-languages";
 
 type Rpc = { jsonrpc?: string; id?: string | number | null; method?: string; params?: { name?: string; arguments?: Record<string, unknown> } };
 type Db = ReturnType<typeof getDb>;
@@ -24,7 +25,7 @@ const workFields = {
   title: { type: "string", maxLength: 160 },
   description: { type: "string" },
   genre: { type: "string" },
-  language: { type: "string" },
+  language: { type: "string", enum: writingLanguageCodes, description: "写作语言代码：en、zh-CN、zh-TW、es、de、fr、ja、pt 或 ko。章节提示词的全部固定文字会使用该语言。" },
   premise: { type: "string" },
   styleGuide: { type: "string" },
   referenceExcerpt: { type: "string" },
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
   try { rpc = await request.json() as Rpc; } catch { return rpcError(null, -32700, "Parse error"); }
   if (rpc.jsonrpc !== "2.0" || !rpc.method) return rpcError(rpc.id ?? null, -32600, "Invalid Request");
   if (rpc.method === "notifications/initialized") return new Response(null, { status: 202, headers });
-  if (rpc.method === "initialize") return rpcResult(rpc.id, { protocolVersion: request.headers.get("mcp-protocol-version") || "2025-06-18", capabilities: { tools: { listChanged: false } }, serverInfo: { name: "story-studio-cloud", version: "0.3.0" }, instructions: "读取和管理作者自己的故事结构与私人章节草稿。可以生成新写或按建议修改的章节提示词。不得声称已发布内容，也不能通过 MCP 发布或删除整部作品。" });
+  if (rpc.method === "initialize") return rpcResult(rpc.id, { protocolVersion: request.headers.get("mcp-protocol-version") || "2025-06-18", capabilities: { tools: { listChanged: false } }, serverInfo: { name: "story-studio-cloud", version: "0.4.0" }, instructions: "读取和管理作者自己的故事结构与私人章节草稿。可以生成新写或按建议修改的章节提示词；提示词的全部固定文字会使用作品选定的写作语言。不得声称已发布内容，也不能通过 MCP 发布或删除整部作品。" });
   if (rpc.method === "ping") return rpcResult(rpc.id, {});
   if (rpc.method === "tools/list") return rpcResult(rpc.id, { tools });
   if (rpc.method !== "tools/call" || !rpc.params?.name) return rpcError(rpc.id ?? null, -32601, "Method not found");
@@ -125,8 +126,13 @@ async function callTool(owner: string, name: string, args: Record<string, unknow
       if (title.length > 160) throw new Error("title 不能超过 160 个字符");
       patch.title = title;
     }
-    for (const field of ["description", "genre", "language", "premise", "styleGuide", "referenceExcerpt"] as const) {
+    for (const field of ["description", "genre", "premise", "styleGuide", "referenceExcerpt"] as const) {
       if (args[field] !== undefined) patch[field] = requiredString(args[field], field, true).trim();
+    }
+    if (args.language !== undefined) {
+      const language = parseWritingLanguage(args.language);
+      if (!language) throw new Error(`language 必须是以下之一：${writingLanguageCodes.join("、")}`);
+      patch.language = language;
     }
     if (Object.keys(patch).length === 1) throw new Error("没有可更新的作品字段");
     const [updated] = await db.update(works).set(patch).where(and(eq(works.id, workId), eq(works.ownerEmail, owner))).returning();
@@ -170,11 +176,13 @@ async function callTool(owner: string, name: string, args: Record<string, unknow
 async function createWork(db: Db, owner: string, args: Record<string, unknown>) {
   const title = requiredString(args.title, "title").trim();
   if (title.length > 160) throw new Error("title 不能超过 160 个字符");
-  const language = optionalString(args.language) || "en";
+  const language = parseWritingLanguage(args.language ?? "en");
+  if (!language) throw new Error(`language 必须是以下之一：${writingLanguageCodes.join("、")}`);
+  const defaultTitles = defaultOutlineTitles(language);
   const now = new Date().toISOString();
   const workId = createId("wrk"), volumeId = createId("vol"), chapterId = createId("chp");
-  const volumeTitle = optionalString(args.volumeTitle) || (language.startsWith("zh") ? "第一卷" : "Volume One");
-  const chapterTitle = optionalString(args.chapterTitle) || (language.startsWith("zh") ? "未命名章节" : "Untitled Chapter");
+  const volumeTitle = optionalString(args.volumeTitle) || defaultTitles.volume;
+  const chapterTitle = optionalString(args.chapterTitle) || defaultTitles.chapter;
   const targetWords = boundedInteger(args.targetWords, 3000, 100, 30000);
   await db.batch([
     db.insert(works).values({ id: workId, ownerEmail: owner, title, slug: createSlug(title), description: optionalString(args.description), genre: optionalString(args.genre) || "Uncategorized", language, premise: optionalString(args.premise), styleGuide: optionalString(args.styleGuide), referenceExcerpt: optionalString(args.referenceExcerpt), isPublished: false, createdAt: now, updatedAt: now }),

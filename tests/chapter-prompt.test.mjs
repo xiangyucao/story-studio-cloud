@@ -27,3 +27,21 @@ test("create prompt starts fresh while modify prompt includes the current manusc
   assert.match(modifyPrompt, /Mara solved the map too easily/);
   assert.match(modifyPrompt, /return the full revised chapter, never a patch/);
 });
+
+test("the complete prompt scaffold follows the selected writing language", async () => {
+  const { buildChapterPrompt } = await loadBuilder();
+  const germanPrompt = buildChapterPrompt({ work: { ...work, language: "de" }, volume, chapter, bundle, mode: "create" });
+  assert.match(germanPrompt, /# WERK/);
+  assert.match(germanPrompt, /# FIGUREN/);
+  assert.match(germanPrompt, /# WELT UND HINTERGRUND/);
+  assert.match(germanPrompt, /# ABSCHLUSSPRÜFUNG/);
+  assert.match(germanPrompt, /Schreibsprache: Deutsch/);
+  assert.doesNotMatch(germanPrompt, /# WORK|# FINAL CHECK|Write in:/);
+
+  const traditionalPrompt = buildChapterPrompt({ work: { ...work, language: "zh-TW" }, volume, chapter, bundle, mode: "modify", suggestion: "保留懸念。" });
+  assert.match(traditionalPrompt, /# 目前章節位置/);
+  assert.match(traditionalPrompt, /# 人物關係/);
+  assert.match(traditionalPrompt, /# 最終檢查/);
+  assert.match(traditionalPrompt, /寫作語言: 繁體中文/);
+  assert.doesNotMatch(traditionalPrompt, /当前章节正文|最终检查|写作语言/);
+});

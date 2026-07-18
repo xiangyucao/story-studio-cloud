@@ -47,10 +47,13 @@ test("MCP remains draft-only and uses optimistic chapter revisions", async () =>
 });
 
 test("chapter editor offers separate create and suggestion-based revision prompts", async () => {
-  const [workbench, i18n, promptBuilder] = await Promise.all([
+  const [workbench, studioHome, i18n, promptBuilder, writingLanguages, mcp] = await Promise.all([
     read("app/studio/works/[id]/workbench.tsx"),
+    read("app/studio/studio-home.tsx"),
     read("lib/i18n.ts"),
     read("lib/chapter-prompt.ts"),
+    read("lib/writing-languages.ts"),
+    read("app/api/mcp/route.ts"),
   ]);
   assert.match(workbench, /work\.createFromOutline/);
   assert.match(workbench, /work\.modifyWithSuggestion/);
@@ -59,6 +62,12 @@ test("chapter editor offers separate create and suggestion-based revision prompt
   assert.match(i18n, /Modify with suggestion/);
   assert.match(promptBuilder, /CURRENT CHAPTER MANUSCRIPT/);
   assert.match(promptBuilder, /never a patch, summary, or explanation/);
+  assert.match(workbench, /<select name="language"/);
+  assert.match(workbench, /writingLanguages\.map/);
+  assert.match(studioHome, /writingLanguages\.map/);
+  assert.match(writingLanguages, /"zh-TW"/);
+  assert.match(writingLanguages, /parseWritingLanguage/);
+  assert.match(mcp, /enum: writingLanguageCodes/);
 });
 
 test("structured data has ownership and private-by-default fields", async () => {
