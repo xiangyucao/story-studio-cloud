@@ -6,6 +6,7 @@ interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   ASSETS_BUCKET: R2Bucket;
+  STORY_STUDIO_ADMIN_EMAILS: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {

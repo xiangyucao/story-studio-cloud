@@ -15,6 +15,13 @@
       "when": 1784336076003,
       "tag": "0001_cleanup_revoked_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784399361555,
+      "tag": "0002_eager_meltdown",
+      "breakpoints": true
     }
   ]
 }

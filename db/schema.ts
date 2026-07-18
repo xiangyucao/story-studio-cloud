@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const timestamps = {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -120,4 +120,19 @@ export const apiTokens = sqliteTable("api_tokens", {
 }, (table) => [
   uniqueIndex("api_tokens_hash_unique").on(table.tokenHash),
   index("api_tokens_owner_idx").on(table.ownerEmail),
+]);
+
+export const userActivity = sqliteTable("user_activity", {
+  userKey: text("user_key").primaryKey(),
+  firstSeenAt: text("first_seen_at").notNull(),
+  lastSeenAt: text("last_seen_at").notNull(),
+}, (table) => [index("user_activity_last_seen_idx").on(table.lastSeenAt)]);
+
+export const userDailyActivity = sqliteTable("user_daily_activity", {
+  userKey: text("user_key").notNull(),
+  activityDate: text("activity_date").notNull(),
+  firstSeenAt: text("first_seen_at").notNull(),
+}, (table) => [
+  primaryKey({ columns: [table.userKey, table.activityDate] }),
+  index("user_daily_activity_date_idx").on(table.activityDate),
 ]);

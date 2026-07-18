@@ -116,6 +116,28 @@ test("structured data has ownership and private-by-default fields", async () => 
   assert.match(studioCss, /\.manuscript-editor \{ font-size: 19px/);
 });
 
+test("owner-only analytics count signed-in activity without storing manuscript behavior", async () => {
+  const [adminPage, adminAuth, usage, schema, layout, i18n] = await Promise.all([
+    read("app/studio/admin/page.tsx"),
+    read("lib/admin.ts"),
+    read("lib/usage.ts"),
+    read("db/schema.ts"),
+    read("app/studio/layout.tsx"),
+    read("lib/i18n.ts"),
+  ]);
+  assert.match(adminPage, /isAdminEmail\(user\.email\)/);
+  assert.match(adminPage, /notFound\(\)/);
+  assert.match(adminPage, /userDailyActivity/);
+  assert.match(adminAuth, /STORY_STUDIO_ADMIN_EMAILS/);
+  assert.doesNotMatch(adminAuth, /xiangyucao@gmail\.com/);
+  assert.match(usage, /sha256\(email\.trim\(\)\.toLowerCase\(\)\)/);
+  assert.match(usage, /onConflictDoNothing/);
+  assert.match(schema, /userDailyActivity/);
+  assert.match(layout, /recordUserActivity\(user\.email\)/);
+  assert.match(layout, /studio\.navAdmin/);
+  assert.match(i18n, /Privacy-respecting metrics/);
+});
+
 test("story memory JSON is portable, previewed, and explicitly applied", async () => {
   const [route, workbench] = await Promise.all([
     read("app/api/works/[id]/context-json/route.ts"),
